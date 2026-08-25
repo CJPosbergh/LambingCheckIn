@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ANSC Lambing Check In — MAES Ft. Ellis</title>
+<title>ANSC Lambing CheckIn — MAES Ft. Ellis</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -85,7 +85,8 @@
     width:15px;height:15px;border-radius:50%;background:var(--field);
     box-shadow:inset 0 1px 3px rgba(0,0,0,.4)
   }
-  .eartag .num{font-family:var(--slab);font-weight:700;font-size:46px;line-height:1;letter-spacing:1px}
+  .eartag .eyebrow{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;opacity:.7;margin-bottom:2px}
+  .eartag .num{font-family:var(--slab);font-weight:700;font-size:42px;line-height:1;letter-spacing:.5px}
   .eartag .who{font-weight:700;font-size:15px;margin-top:6px;word-wrap:break-word}
   .eartag .when{font-family:var(--mono);font-size:12.5px;margin-top:6px}
   .eartag .shiftline{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;margin-top:8px;border-top:1.5px dashed rgba(46,36,16,.35);padding-top:8px}
@@ -158,12 +159,13 @@
 
   <div class="tagwrap" id="tagwrap" aria-live="polite">
     <div class="eartag">
+      <div class="eyebrow">Shift</div>
       <div class="num" id="tag-num">—</div>
       <div class="who" id="tag-who"></div>
       <div class="when" id="tag-when"></div>
       <div class="shiftline" id="tag-shift"></div>
     </div>
-    <p class="tagcap">You're checked in and your shift recorded.</p>
+    <p class="tagcap" id="tagcap">You're checked in. Show this tag to the shift lead if asked.</p>
   </div>
 
   <div class="card">
@@ -262,6 +264,10 @@
   function fmtDate(k){ var p=k.split("-"); var d=new Date(+p[0],+p[1]-1,+p[2]);
     return d.toLocaleDateString([], {weekday:"long", month:"long", day:"numeric", year:"numeric"}); }
   function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+  function ordinal(n){
+    var s=["th","st","nd","rd"], v=n%100;
+    return n+(s[(v-20)%10]||s[v]||s[0]);
+  }
   function showMsg(el,text,cls){ el.className="msg "+cls; el.textContent=text; }
   function clearMsg(el){ el.className="msg"; el.textContent=""; }
 
@@ -347,10 +353,13 @@
       if(!apiReady()) throw new Error("no api");
       var res=await apiPost(entry);
       var n=res.count||1;
-      $("tag-num").textContent="#"+String(n).padStart(2,"0");
+      $("tag-num").textContent=ordinal(n);
       $("tag-who").textContent=entry.name;
       $("tag-when").textContent=fmtDate(entry.date).replace(/^[A-Za-z]+, /,"")+" · "+fmtTime(entry.ts);
       $("tag-shift").textContent=shiftName(entry.shift)+" shift";
+      $("tagcap").textContent = n===1
+        ? "First shift logged. Show this tag to the shift lead if asked."
+        : "That's "+n+" shifts logged. Show this tag to the shift lead if asked.";
       $("tagwrap").classList.add("show");
       $("tagwrap").scrollIntoView({behavior:"smooth", block:"center"});
       renderToday();
