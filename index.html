@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANSC Lambing CheckIn — MAES Ft. Ellis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    --field:#F2F4F0;      /* cool pasture fog */
+    --card:#FFFFFF;
+    --ink:#16273D;        /* deep MSU navy */
+    --blue:#1E4D8C;
+    --blue-dk:#153A6B;
+    --gold:#C8A253;       /* ear-tag brass */
+    --gold-dk:#A8843B;
+    --green:#3E6B4F;      /* pasture confirm */
+    --red:#9C3B2E;
+    --line:#D9DED6;
+    --muted:#5C6B7A;
+    --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+    --slab:'Zilla Slab',Rockwell,serif;
+    --body:'Public Sans',system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{background:var(--field);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;min-height:100vh}
+  a{color:var(--blue)}
+  button{font-family:inherit;cursor:pointer}
+  input,select{font-family:inherit;font-size:16px}
+  :focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:4px}
+
+  .wrap{max-width:540px;margin:0 auto;padding:20px 16px 56px}
+  .wrap.wide{max-width:900px}
+
+  /* Header */
+  header.site{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:3px solid var(--ink);padding-bottom:12px;margin-bottom:20px}
+  .brand{font-family:var(--slab);font-weight:700;font-size:22px;letter-spacing:.2px}
+  .brand small{display:block;font-family:var(--body);font-weight:600;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+  .clock{font-family:var(--mono);font-size:13px;color:var(--muted);white-space:nowrap}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 1px 2px rgba(22,39,61,.05)}
+  h2{font-family:var(--slab);font-weight:600;font-size:19px;margin-bottom:12px}
+  label{display:block;font-weight:600;font-size:13px;letter-spacing:.02em;margin:14px 0 6px}
+  label:first-of-type{margin-top:0}
+  .field{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:8px;background:#FCFCFA}
+  .field:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 3px rgba(30,77,140,.15)}
+  .hint{font-size:12.5px;color:var(--muted);margin-top:5px}
+
+  /* Shift chips */
+  .chips{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .chip{padding:11px 8px;border:1.5px solid var(--line);border-radius:8px;background:#FCFCFA;font-weight:600;font-size:14px;text-align:center;color:var(--ink)}
+  .chip .t{display:block;font-family:var(--mono);font-weight:400;font-size:11px;color:var(--muted);margin-top:2px}
+  .chip[aria-pressed="true"]{border-color:var(--blue);background:#EAF0F8;color:var(--blue-dk)}
+  .chip[aria-pressed="true"] .t{color:var(--blue-dk)}
+
+  .btn{display:block;width:100%;padding:15px;border:none;border-radius:10px;background:var(--blue);color:#fff;font-size:17px;font-weight:700;letter-spacing:.01em;margin-top:18px}
+  .btn:hover{background:var(--blue-dk)}
+  .btn:disabled{background:#9AA7B6;cursor:default}
+  .btn.quiet{background:transparent;color:var(--blue);border:1.5px solid var(--line);font-size:14px;padding:11px;font-weight:600}
+  .btn.quiet:hover{border-color:var(--blue);background:#EAF0F8}
+  .btn.gold{background:var(--gold-dk)}
+  .btn.gold:hover{background:#8F6E2E}
+  .btn.danger-link{background:none;border:none;color:var(--red);font-size:13px;font-weight:600;width:auto;padding:4px;margin:0}
+
+  .msg{border-radius:8px;padding:11px 13px;font-size:14px;margin-top:14px;display:none}
+  .msg.err{display:block;background:#F7E9E6;color:var(--red);border:1px solid #E3C4BD}
+  .msg.ok{display:block;background:#E9F1EB;color:var(--green);border:1px solid #C6D8CB}
+
+  /* ————— Signature: ear-tag confirmation ————— */
+  .tagwrap{display:none;text-align:center;padding:8px 0 4px}
+  .tagwrap.show{display:block}
+  .eartag{
+    display:inline-block;position:relative;width:230px;
+    background:linear-gradient(160deg,#D9B668 0%,var(--gold) 45%,#B08A3F 100%);
+    border-radius:16px 16px 60px 60px / 16px 16px 42px 42px;
+    padding:34px 18px 26px;color:#2E2410;
+    box-shadow:0 3px 8px rgba(22,39,61,.25), inset 0 1px 0 rgba(255,255,255,.5);
+    animation:tagdrop .45s cubic-bezier(.2,1.4,.4,1)
+  }
+  .eartag::before{ /* punch hole */
+    content:"";position:absolute;top:11px;left:50%;transform:translateX(-50%);
+    width:15px;height:15px;border-radius:50%;background:var(--field);
+    box-shadow:inset 0 1px 3px rgba(0,0,0,.4)
+  }
+  .eartag .num{font-family:var(--slab);font-weight:700;font-size:46px;line-height:1;letter-spacing:1px}
+  .eartag .who{font-weight:700;font-size:15px;margin-top:6px;word-wrap:break-word}
+  .eartag .when{font-family:var(--mono);font-size:12.5px;margin-top:6px}
+  .eartag .shiftline{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;margin-top:8px;border-top:1.5px dashed rgba(46,36,16,.35);padding-top:8px}
+  .tagcap{font-size:13.5px;color:var(--green);font-weight:600;margin-top:12px}
+  @keyframes tagdrop{from{transform:translateY(-14px) rotate(-3deg);opacity:0}to{transform:none;opacity:1}}
+  @media (prefers-reduced-motion:reduce){.eartag{animation:none}}
+
+  /* Today's ledger */
+  .ledger{list-style:none}
+  .ledger li{display:flex;align-items:baseline;gap:10px;padding:9px 2px;border-bottom:1px dashed var(--line);font-size:14.5px}
+  .ledger li:last-child{border-bottom:none}
+  .ledger .lt{font-family:var(--mono);font-size:12.5px;color:var(--muted);min-width:76px}
+  .ledger .ls{margin-left:auto;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue-dk);background:#EAF0F8;padding:2px 8px;border-radius:20px;white-space:nowrap}
+  .empty{color:var(--muted);font-size:14px;padding:6px 0}
+
+  footer.site{text-align:center;margin-top:26px;font-size:13px;color:var(--muted)}
+  footer.site button{background:none;border:none;color:var(--muted);text-decoration:underline;font-size:13px}
+
+  /* Admin */
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+  .toolbar .btn{width:auto;margin:0;padding:10px 16px;font-size:14px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;text-align:left;color:var(--muted);border-bottom:2px solid var(--ink);padding:6px 8px}
+  td{padding:8px;border-bottom:1px solid var(--line);vertical-align:baseline}
+  td.mono{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+  .dayhead{font-family:var(--slab);font-weight:600;font-size:17px;margin:20px 0 6px}
+  .dayhead .cnt{font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400;margin-left:8px}
+  .loadnote{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+
+  /* QR poster */
+  #qrbox{display:flex;justify-content:center;padding:14px 0}
+  .poster-only{display:none}
+  @media print{
+    body{background:#fff}
+    body.printing-poster .no-print{display:none !important}
+    body.printing-poster .poster-only{display:block}
+    .poster{max-width:640px;margin:0 auto;text-align:center;padding-top:40px}
+    .poster h1{font-family:var(--slab);font-size:40px;margin-bottom:6px}
+    .poster p.sub{font-size:18px;color:#333;margin-bottom:24px}
+    .poster ol{display:inline-block;text-align:left;font-size:16px;margin-top:24px;padding-left:22px}
+    .poster ol li{margin-bottom:6px}
+  }
+  @media (max-width:420px){
+    .brand{font-size:19px}
+    .eartag{width:210px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= STUDENT VIEW ================= -->
+<div class="wrap no-print" id="view-student">
+  <header class="site">
+    <div class="brand">ANSC Lambing CheckIn<small>MAES Ft. Ellis · ANSC 132: Lambing</small></div>
+    <div class="clock" id="clock"></div>
+  </header>
+
+  <div class="card">
+    <h2>Record your shift</h2>
+    <label for="in-name">Full name</label>
+    <input class="field" id="in-name" autocomplete="name" placeholder="e.g. Jordan Ricci" maxlength="60">
+
+    <label id="shift-label">Shift</label>
+    <div class="chips" role="group" aria-labelledby="shift-label" id="chips"></div>
+    <p class="hint">The shift matching the current time is pre-selected — change it if you're covering a different one.</p>
+
+    <button class="btn" id="btn-checkin">Check in now</button>
+    <div class="msg" id="student-msg" role="status"></div>
+  </div>
+
+  <div class="tagwrap" id="tagwrap" aria-live="polite">
+    <div class="eartag">
+      <div class="num" id="tag-num">—</div>
+      <div class="who" id="tag-who"></div>
+      <div class="when" id="tag-when"></div>
+      <div class="shiftline" id="tag-shift"></div>
+    </div>
+    <p class="tagcap">You're checked in. Show this tag to the shift lead if asked.</p>
+  </div>
+
+  <div class="card">
+    <h2>Today at the barn</h2>
+    <ul class="ledger" id="today-ledger"><li class="empty">Loading…</li></ul>
+  </div>
+
+  <footer class="site">
+    Check-ins are recorded on a shared attendance sheet visible to the course instructor.<br>
+    <button id="link-admin">Instructor view</button>
+  </footer>
+</div>
+
+<!-- ================= ADMIN VIEW ================= -->
+<div class="wrap wide no-print" id="view-admin" hidden>
+  <header class="site">
+    <div class="brand">Attendance ledger<small>MAES Ft. Ellis · ANSC 132: Lambing</small></div>
+    <div class="clock" id="clock2"></div>
+  </header>
+
+  <div class="card" id="gate-card">
+    <h2 id="gate-title">Instructor passcode</h2>
+    <p class="hint" id="gate-hint" style="margin-bottom:4px"></p>
+    <label for="in-pass">Passcode</label>
+    <input class="field" id="in-pass" type="password" autocomplete="off">
+    <button class="btn" id="btn-gate">Open ledger</button>
+    <div class="msg" id="gate-msg" role="alert"></div>
+    <p class="hint" style="margin-top:12px">The passcode keeps students out of the ledger by convention — it isn't bank-grade security, so treat this sheet as an attendance record, not a place for sensitive data.</p>
+  </div>
+
+  <div id="admin-body" hidden>
+    <div class="toolbar">
+      <button class="btn quiet" id="btn-refresh">Refresh</button>
+      <button class="btn gold" id="btn-csv">Download CSV</button>
+      <button class="btn quiet" id="btn-qr-toggle">QR poster</button>
+      <button class="btn quiet" id="btn-back">Student view</button>
+    </div>
+
+    <div class="card" id="qr-card" hidden>
+      <h2>QR poster for the barn door</h2>
+      <label for="in-url">Link the QR code should open</label>
+      <input class="field" id="in-url" placeholder="Paste the shared link to this app">
+      <p class="hint">Publish or share this app, copy that link from your browser's address bar, and paste it here. Then print the poster and hang it where students check in.</p>
+      <button class="btn" id="btn-qr-make">Generate QR code</button>
+      <div id="qrbox"></div>
+      <button class="btn quiet" id="btn-print" hidden>Print poster</button>
+    </div>
+
+    <div class="card">
+      <h2>All check-ins</h2>
+      <p class="loadnote" id="admin-status">Loading entries…</p>
+      <div id="admin-days"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= PRINTED POSTER ================= -->
+<div class="poster poster-only">
+  <h1>ANSC Lambing CheckIn</h1>
+  <p class="sub">MAES Ft. Ellis · ANSC 132: Lambing</p>
+  <div id="qrbox-print"></div>
+  <ol>
+    <li>Scan the code with your phone camera.</li>
+    <li>Enter your name and confirm your shift.</li>
+    <li>Tap <strong>Check in now</strong> — done.</li>
+  </ol>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- shifts ---------- */
+  /* shifts by start time; from/to are minutes from 4:00 AM so the day wraps cleanly */
+  var SHIFTS=[
+    {id:"s4am",  name:"4 AM",     t:"starts 4:00 AM",  from:0,    to:240},
+    {id:"s8am",  name:"8 AM",     t:"starts 8:00 AM",  from:240,  to:480},
+    {id:"snoon", name:"Noon",     t:"starts 12:00 PM", from:480,  to:720},
+    {id:"s4pm",  name:"4 PM",     t:"starts 4:00 PM",  from:720,  to:960},
+    {id:"s8pm",  name:"8 PM",     t:"starts 8:00 PM",  from:960,  to:1199},
+    {id:"smid",  name:"Midnight", t:"starts 11:59 PM", from:1199, to:1440}
+  ];
+  function currentShiftId(){
+    var d=new Date();
+    var m=d.getHours()*60+d.getMinutes()-240; /* minutes since 4:00 AM */
+    if(m<0) m+=1440;
+    for(var i=0;i<SHIFTS.length;i++) if(m>=SHIFTS[i].from && m<SHIFTS[i].to) return SHIFTS[i].id;
+    return "s4am";
+  }
+  function shiftName(id){for(var i=0;i<SHIFTS.length;i++) if(SHIFTS[i].id===id) return SHIFTS[i].name; return id;}
+
+  /* ---------- helpers ---------- */
+  function $(id){return document.getElementById(id);}
+  function todayKey(d){ d=d||new Date(); return d.toLocaleDateString("en-CA"); } /* YYYY-MM-DD local */
+  function fmtTime(ts){ return new Date(ts).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"}); }
+  function fmtDate(k){ var p=k.split("-"); var d=new Date(+p[0],+p[1]-1,+p[2]);
+    return d.toLocaleDateString([], {weekday:"long", month:"long", day:"numeric", year:"numeric"}); }
+  function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+  function showMsg(el,text,cls){ el.className="msg "+cls; el.textContent=text; }
+  function clearMsg(el){ el.className="msg"; el.textContent=""; }
+
+  /* ---------- backend: Google Apps Script → Google Sheet ---------- */
+  /* SETUP: paste your deployed Apps Script web-app URL and pick a passcode. */
+  var API_URL   = "https://script.google.com/macros/s/AKfycbyHrWY4qAnYyOomdjZrtPJETvkuZ83787JmHT0OHPEj1cuxLwgg7dK-BKUoqHlobFrXRA/exec";
+  var ADMIN_PASS= "MSUSheep"; /* change this, and match it in the Apps Script */
+
+  var cache=null; /* last fetched entries */
+  function apiReady(){ return API_URL.indexOf("https://")===0; }
+  async function apiAll(){
+    var r=await fetch(API_URL+"?action=all");
+    var j=await r.json();
+    if(!j.ok) throw new Error(j.error||"fetch failed");
+    cache=j.entries||[];
+    cache.sort(function(a,b){return a.ts-b.ts;});
+    return cache;
+  }
+  async function apiPost(payload){
+    var r=await fetch(API_URL,{method:"POST",body:JSON.stringify(payload)});
+    var j=await r.json();
+    if(!j.ok) throw new Error(j.error||"request failed");
+    return j;
+  }
+  async function getDay(dateKey){
+    var all=await apiAll();
+    return all.filter(function(e){return e.date===dateKey;});
+  }
+
+  /* ---------- clock ---------- */
+  function tick(){
+    var s=new Date().toLocaleString([], {weekday:"short", month:"short", day:"numeric", hour:"numeric", minute:"2-digit"});
+    $("clock").textContent=s; $("clock2").textContent=s;
+  }
+  tick(); setInterval(tick, 30000);
+
+  /* ---------- student view ---------- */
+  var selectedShift=currentShiftId();
+  function renderChips(){
+    var box=$("chips"); box.innerHTML="";
+    SHIFTS.forEach(function(s){
+      var b=document.createElement("button");
+      b.type="button"; b.className="chip";
+      b.setAttribute("aria-pressed", s.id===selectedShift ? "true":"false");
+      b.innerHTML=esc(s.name)+'<span class="t">'+esc(s.t)+"</span>";
+      b.addEventListener("click", function(){ selectedShift=s.id; renderChips(); });
+      box.appendChild(b);
+    });
+  }
+  renderChips();
+
+  async function renderToday(){
+    var ul=$("today-ledger");
+    if(!apiReady()){ ul.innerHTML='<li class="empty">Setup needed: paste your Apps Script URL into API_URL at the top of the script.</li>'; return; }
+    try{
+      var list=await getDay(todayKey());
+    }catch(e){ ul.innerHTML='<li class="empty">Couldn\'t reach the attendance sheet — check your connection.</li>'; return; }
+    if(!list.length){ ul.innerHTML='<li class="empty">No one has checked in yet today.</li>'; return; }
+    ul.innerHTML=list.map(function(e){
+      return '<li><span class="lt">'+esc(fmtTime(e.ts))+'</span><span>'+esc(e.name)+'</span><span class="ls">'+esc(shiftName(e.shift))+"</span></li>";
+    }).join("");
+  }
+  renderToday();
+
+  $("btn-checkin").addEventListener("click", async function(){
+    var msg=$("student-msg"); clearMsg(msg);
+    var name=$("in-name").value.trim();
+    if(name.length<2){ showMsg(msg,"Enter your full name so the record matches the shift schedule.","err"); $("in-name").focus(); return; }
+
+    var btn=$("btn-checkin"); btn.disabled=true; btn.textContent="Recording…";
+    var now=new Date();
+    var entry={
+      action:"checkin",
+      uid: now.getTime().toString(36)+"-"+Math.random().toString(36).slice(2,8),
+      name: name,
+      shift: selectedShift,
+      ts: now.getTime(),
+      iso: now.toISOString(),
+      time: fmtTime(now.getTime()),
+      date: todayKey(now)
+    };
+    try{
+      if(!apiReady()) throw new Error("no api");
+      var res=await apiPost(entry);
+      var n=res.count||1;
+      $("tag-num").textContent="#"+String(n).padStart(2,"0");
+      $("tag-who").textContent=entry.name;
+      $("tag-when").textContent=fmtDate(entry.date).replace(/^[A-Za-z]+, /,"")+" · "+fmtTime(entry.ts);
+      $("tag-shift").textContent=shiftName(entry.shift)+" shift";
+      $("tagwrap").classList.add("show");
+      $("tagwrap").scrollIntoView({behavior:"smooth", block:"center"});
+      renderToday();
+    }catch(e){
+      showMsg(msg,"The check-in didn't save — check your connection and tap the button again.","err");
+    }
+    btn.disabled=false; btn.textContent="Check in now";
+  });
+
+  /* ---------- view switching ---------- */
+  function show(view){
+    $("view-student").hidden = view!=="student";
+    $("view-admin").hidden   = view!=="admin";
+    window.scrollTo(0,0);
+  }
+  $("link-admin").addEventListener("click", function(){ show("admin"); initGate(); });
+  $("btn-back").addEventListener("click", function(){ show("student"); renderToday(); });
+
+  /* ---------- admin: passcode gate ---------- */
+  async function initGate(){
+    $("gate-card").hidden=false; $("admin-body").hidden=true; clearMsg($("gate-msg"));
+    $("gate-hint").textContent="Enter the instructor passcode (set in this file's ADMIN_PASS).";
+  }
+  $("btn-gate").addEventListener("click", async function(){
+    var p=$("in-pass").value;
+    var msg=$("gate-msg"); clearMsg(msg);
+    if(p!==ADMIN_PASS){ showMsg(msg,"That passcode doesn't match.","err"); return; }
+    $("in-pass").value="";
+    $("gate-card").hidden=true; $("admin-body").hidden=false;
+    renderAdmin();
+  });
+
+  /* ---------- admin: ledger ---------- */
+  var allDays={}; /* dateKey -> entries[] */
+  async function renderAdmin(){
+    var status=$("admin-status"), box=$("admin-days");
+    status.textContent="Loading entries…"; box.innerHTML=""; allDays={};
+    if(!apiReady()){ status.textContent="Setup needed: paste your Apps Script URL into API_URL at the top of the script."; return; }
+    var all;
+    try{ all=await apiAll(); }
+    catch(e){ status.textContent="Couldn't reach the attendance sheet — check your connection and the Apps Script deployment."; return; }
+    if(!all.length){ status.textContent="No check-ins recorded yet. Once students start scanning, entries appear here by day."; return; }
+    all.forEach(function(e){ (allDays[e.date]=allDays[e.date]||[]).push(e); });
+    var keys=Object.keys(allDays).sort().reverse();
+    keys.forEach(function(dk){ box.insertAdjacentHTML("beforeend", dayBlock(dk, allDays[dk])); });
+    status.textContent=all.length+" check-in"+(all.length===1?"":"s")+" across "+keys.length+" day"+(keys.length===1?"":"s")+".";
+    box.querySelectorAll("[data-del]").forEach(function(b){
+      b.addEventListener("click", function(){ removeEntry(b.getAttribute("data-del")); });
+    });
+  }
+  function dayBlock(dk,list){
+    var rows=list.map(function(e){
+      return "<tr>"
+        +'<td class="mono">'+esc(fmtTime(e.ts))+"</td>"
+        +"<td>"+esc(e.name)+"</td>"
+        +"<td>"+esc(shiftName(e.shift))+"</td>"
+        +'<td><button class="btn danger-link" data-del="'+esc(e.uid)+'">Remove</button></td>'
+        +"</tr>";
+    }).join("");
+    return '<div class="dayhead">'+esc(fmtDate(dk))+'<span class="cnt">'+list.length+" entr"+(list.length===1?"y":"ies")+"</span></div>"
+      +'<table><thead><tr><th>Time</th><th>Name</th><th>Shift</th><th></th></tr></thead><tbody>'+rows+"</tbody></table>";
+  }
+  async function removeEntry(uid){
+    if(!window.confirm("Remove this check-in from the ledger?")) return;
+    try{
+      await apiPost({action:"remove", uid:uid, pass:ADMIN_PASS});
+      renderAdmin();
+    }catch(e){ window.alert("Couldn't remove the entry — refresh and try again."); }
+  }
+  $("btn-refresh").addEventListener("click", renderAdmin);
+
+  /* ---------- admin: CSV ---------- */
+  $("btn-csv").addEventListener("click", function(){
+    var rows=[["date","time","name","shift","iso_timestamp"]];
+    Object.keys(allDays).sort().forEach(function(dk){
+      allDays[dk].forEach(function(e){
+        rows.push([dk, fmtTime(e.ts), e.name, shiftName(e.shift), e.iso||new Date(e.ts).toISOString()]);
+      });
+    });
+    var csv=rows.map(function(r){
+      return r.map(function(c){ c=String(c); return /[",\n]/.test(c) ? '"'+c.replace(/"/g,'""')+'"' : c; }).join(",");
+    }).join("\r\n");
+    var blob=new Blob([csv],{type:"text/csv"});
+    var a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="lambing-checkins-"+todayKey()+".csv";
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+
+  /* ---------- admin: QR poster ---------- */
+  $("btn-qr-toggle").addEventListener("click", function(){
+    var c=$("qr-card"); c.hidden=!c.hidden;
+    if(!c.hidden && !$("in-url").value){
+      try{ $("in-url").value=window.location.href; }catch(e){}
+    }
+  });
+  $("btn-qr-make").addEventListener("click", function(){
+    var url=$("in-url").value.trim();
+    if(!url){ window.alert("Paste the link to this app first."); return; }
+    $("qrbox").innerHTML=""; $("qrbox-print").innerHTML="";
+    if(typeof QRCode==="undefined"){
+      $("qrbox").innerHTML='<p class="hint">The QR library didn\'t load — check your connection and reopen the app.</p>';
+      return;
+    }
+    new QRCode($("qrbox"),       {text:url, width:220, height:220, correctLevel:QRCode.CorrectLevel.M});
+    new QRCode($("qrbox-print"), {text:url, width:320, height:320, correctLevel:QRCode.CorrectLevel.M});
+    $("btn-print").hidden=false;
+  });
+  $("btn-print").addEventListener("click", function(){
+    document.body.classList.add("printing-poster");
+    window.print();
+    setTimeout(function(){ document.body.classList.remove("printing-poster"); }, 500);
+  });
+
+})();
+</script>
+</body>
+</html>
