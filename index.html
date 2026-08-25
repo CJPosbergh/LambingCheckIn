@@ -358,8 +358,8 @@
       $("tag-when").textContent=fmtDate(entry.date).replace(/^[A-Za-z]+, /,"")+" · "+fmtTime(entry.ts);
       $("tag-shift").textContent=shiftName(entry.shift)+" shift";
       $("tagcap").textContent = n===1
-        ? "First shift logged. Show this tag to the shift lead if asked."
-        : "That's "+n+" shifts logged. Show this tag to the shift lead if asked.";
+        ? "First shift logged."
+        : "That's "+n+" shifts logged.";
       $("tagwrap").classList.add("show");
       $("tagwrap").scrollIntoView({behavior:"smooth", block:"center"});
       renderToday();
