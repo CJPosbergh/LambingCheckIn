@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ANSC Lambing CheckIn — MAES Ft. Ellis</title>
+<title>ANSC Lambing Check In — MAES Ft. Ellis</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -36,7 +36,9 @@
   .wrap.wide{max-width:900px}
 
   /* Header */
-  header.site{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:3px solid var(--ink);padding-bottom:12px;margin-bottom:20px}
+  header.site{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:3px solid var(--ink);padding-bottom:12px;margin-bottom:20px}
+  .brandwrap{display:flex;align-items:center;gap:11px;min-width:0}
+  .logo{height:46px;width:46px;object-fit:contain;flex-shrink:0}
   .brand{font-family:var(--slab);font-weight:700;font-size:22px;letter-spacing:.2px}
   .brand small{display:block;font-family:var(--body);font-weight:600;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:2px}
   .clock{font-family:var(--mono);font-size:13px;color:var(--muted);white-space:nowrap}
@@ -48,6 +50,9 @@
   .field{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:8px;background:#FCFCFA}
   .field:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 3px rgba(30,77,140,.15)}
   .hint{font-size:12.5px;color:var(--muted);margin-top:5px}
+  .notice{margin-top:18px;padding:13px 15px;border:1px solid #D6DFEA;border-left:4px solid var(--blue);
+          border-radius:8px;background:#F4F7FB;font-size:13.5px;line-height:1.5;color:#2C4460}
+  .notice strong{display:block;font-weight:700;color:var(--blue-dk);margin-bottom:4px}
 
   /* Shift chips */
   .chips{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -112,6 +117,10 @@
   th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;text-align:left;color:var(--muted);border-bottom:2px solid var(--ink);padding:6px 8px}
   td{padding:8px;border-bottom:1px solid var(--line);vertical-align:baseline}
   td.mono{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+  .geo{font-size:11.5px;font-weight:700;letter-spacing:.04em;padding:2px 8px;border-radius:20px;white-space:nowrap;text-decoration:none}
+  .geo.ok{background:#E9F1EB;color:var(--green)}
+  .geo.far{background:#F7E9E6;color:var(--red)}
+  .geo.none{background:#EEF0EC;color:var(--muted);font-weight:500}
   .dayhead{font-family:var(--slab);font-weight:600;font-size:17px;margin:20px 0 6px}
   .dayhead .cnt{font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400;margin-left:8px}
   .loadnote{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
@@ -125,12 +134,14 @@
     body.printing-poster .poster-only{display:block}
     .poster{max-width:640px;margin:0 auto;text-align:center;padding-top:40px}
     .poster h1{font-family:var(--slab);font-size:40px;margin-bottom:6px}
+    .poster-logo{height:110px;width:110px;object-fit:contain;margin-bottom:14px}
     .poster p.sub{font-size:18px;color:#333;margin-bottom:24px}
     .poster ol{display:inline-block;text-align:left;font-size:16px;margin-top:24px;padding-left:22px}
     .poster ol li{margin-bottom:6px}
   }
   @media (max-width:420px){
     .brand{font-size:19px}
+    .logo{height:38px;width:38px}
     .eartag{width:210px}
   }
 </style>
@@ -140,7 +151,10 @@
 <!-- ================= STUDENT VIEW ================= -->
 <div class="wrap no-print" id="view-student">
   <header class="site">
-    <div class="brand">ANSC Lambing CheckIn<small>MAES Ft. Ellis · ANSC 132: Lambing</small></div>
+    <div class="brandwrap">
+      <img class="logo" src="logo.png" alt="MSU Extension Sheep Program" onerror="this.style.display='none'">
+      <div class="brand">ANSC Lambing CheckIn<small>MAES Ft. Ellis · ANSC 132: Lambing</small></div>
+    </div>
     <div class="clock" id="clock"></div>
   </header>
 
@@ -152,6 +166,11 @@
     <label id="shift-label">Shift</label>
     <div class="chips" role="group" aria-labelledby="shift-label" id="chips"></div>
     <p class="hint">The shift matching the current time is pre-selected — change it if you're covering a different one.</p>
+
+    <div class="notice">
+      <strong>Your location is recorded when you tap Check in.</strong>
+      This confirms you're physically at the farm for your shift. Your phone will ask permission — allow it, and a single location reading is saved with your check-in. Nothing is tracked before or after that moment, and the app does not follow your location at any other time.
+    </div>
 
     <button class="btn" id="btn-checkin">Check in now</button>
     <div class="msg" id="student-msg" role="status"></div>
@@ -165,7 +184,7 @@
       <div class="when" id="tag-when"></div>
       <div class="shiftline" id="tag-shift"></div>
     </div>
-    <p class="tagcap" id="tagcap">You're checked in for your shift.</p>
+    <p class="tagcap" id="tagcap">You're checked in. Show this tag to the shift lead if asked.</p>
   </div>
 
   <div class="card">
@@ -174,7 +193,7 @@
   </div>
 
   <footer class="site">
-    Check-ins are recorded on a shared attendance sheet visible to the course instructors.<br>
+    Check-ins are recorded on a shared attendance sheet visible to the course instructor.<br>
     <button id="link-admin">Instructor view</button>
   </footer>
 </div>
@@ -182,7 +201,10 @@
 <!-- ================= ADMIN VIEW ================= -->
 <div class="wrap wide no-print" id="view-admin" hidden>
   <header class="site">
-    <div class="brand">Attendance ledger<small>MAES Ft. Ellis · ANSC 132: Lambing</small></div>
+    <div class="brandwrap">
+      <img class="logo" src="logo.png" alt="MSU Extension Sheep Program" onerror="this.style.display='none'">
+      <div class="brand">Attendance ledger<small>MAES Ft. Ellis · ANSC 132: Lambing</small></div>
+    </div>
     <div class="clock" id="clock2"></div>
   </header>
 
@@ -224,6 +246,7 @@
 
 <!-- ================= PRINTED POSTER ================= -->
 <div class="poster poster-only">
+  <img class="poster-logo" src="logo.png" alt="MSU Extension Sheep Program" onerror="this.style.display='none'">
   <h1>ANSC Lambing CheckIn</h1>
   <p class="sub">MAES Ft. Ellis · ANSC 132: Lambing</p>
   <div id="qrbox-print"></div>
@@ -274,7 +297,43 @@
   /* ---------- backend: Google Apps Script → Google Sheet ---------- */
   /* SETUP: paste your deployed Apps Script web-app URL and pick a passcode. */
   var API_URL   = "https://script.google.com/macros/s/AKfycbyHrWY4qAnYyOomdjZrtPJETvkuZ83787JmHT0OHPEj1cuxLwgg7dK-BKUoqHlobFrXRA/exec";
-  var ADMIN_PASS= "MSUSheep"; /* change this, and match it in the Apps Script */
+  var ADMIN_PASS= "MSUSheep"; /* must match ADMIN_PASS in the Apps Script */
+
+  /* Farm coordinates for the on-site check. Get exact values by right-clicking
+     the barn in Google Maps and copying the lat, lon pair that appears. */
+  var FARM_LAT  = 45.6662;   /* MAES Ft. Ellis barn latitude  */
+  var FARM_LON  = -110.9734; /* MAES Ft. Ellis barn longitude */
+  var RADIUS_M  = 250;       /* how close counts as "at the farm", in meters */
+
+  /* Straight-line distance between two coordinates, in meters */
+  function distanceM(lat1,lon1,lat2,lon2){
+    var R=6371000, rad=Math.PI/180;
+    var dLat=(lat2-lat1)*rad, dLon=(lon2-lon1)*rad;
+    var a=Math.sin(dLat/2)*Math.sin(dLat/2)
+        + Math.cos(lat1*rad)*Math.cos(lat2*rad)*Math.sin(dLon/2)*Math.sin(dLon/2);
+    return Math.round(R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)));
+  }
+
+  /* Ask the phone for its position; resolves to null if unavailable or refused */
+  function getPosition(){
+    return new Promise(function(resolve){
+      if(!navigator.geolocation) return resolve(null);
+      var done=false;
+      var timer=setTimeout(function(){ if(!done){ done=true; resolve(null); } }, 12000);
+      navigator.geolocation.getCurrentPosition(
+        function(pos){
+          if(done) return; done=true; clearTimeout(timer);
+          resolve({
+            lat: +pos.coords.latitude.toFixed(6),
+            lon: +pos.coords.longitude.toFixed(6),
+            acc: Math.round(pos.coords.accuracy)
+          });
+        },
+        function(){ if(!done){ done=true; clearTimeout(timer); resolve(null); } },
+        {enableHighAccuracy:true, timeout:11000, maximumAge:60000}
+      );
+    });
+  }
 
   var cache=null; /* last fetched entries */
   function apiReady(){ return API_URL.indexOf("https://")===0; }
@@ -337,7 +396,9 @@
     var name=$("in-name").value.trim();
     if(name.length<2){ showMsg(msg,"Enter your full name so the record matches the shift schedule.","err"); $("in-name").focus(); return; }
 
-    var btn=$("btn-checkin"); btn.disabled=true; btn.textContent="Recording…";
+    var btn=$("btn-checkin"); btn.disabled=true; btn.textContent="Getting location…";
+    var geo=await getPosition();
+    btn.textContent="Recording…";
     var now=new Date();
     var entry={
       action:"checkin",
@@ -347,7 +408,12 @@
       ts: now.getTime(),
       iso: now.toISOString(),
       time: fmtTime(now.getTime()),
-      date: todayKey(now)
+      date: todayKey(now),
+      lat: geo? geo.lat : "",
+      lon: geo? geo.lon : "",
+      acc: geo? geo.acc : "",
+      dist: geo? distanceM(geo.lat, geo.lon, FARM_LAT, FARM_LON) : "",
+      atfarm: geo ? (distanceM(geo.lat, geo.lon, FARM_LAT, FARM_LON) <= RADIUS_M ? "yes" : "no") : "unknown"
     };
     try{
       if(!apiReady()) throw new Error("no api");
@@ -357,9 +423,10 @@
       $("tag-who").textContent=entry.name;
       $("tag-when").textContent=fmtDate(entry.date).replace(/^[A-Za-z]+, /,"")+" · "+fmtTime(entry.ts);
       $("tag-shift").textContent=shiftName(entry.shift)+" shift";
-      $("tagcap").textContent = n===1
-        ? "First shift logged."
-        : "That's "+n+" shifts logged.";
+      var geoNote = entry.atfarm==="yes" ? "Location confirmed at the farm."
+                  : entry.atfarm==="no"  ? "Recorded, but your phone placed you away from the barn — mention it to your shift lead."
+                  : "Recorded without location — your instructor may follow up.";
+      $("tagcap").textContent = (n===1 ? "First shift logged. " : "That's "+n+" shifts logged. ") + geoNote;
       $("tagwrap").classList.add("show");
       $("tagwrap").scrollIntoView({behavior:"smooth", block:"center"});
       renderToday();
@@ -416,11 +483,20 @@
         +'<td class="mono">'+esc(fmtTime(e.ts))+"</td>"
         +"<td>"+esc(e.name)+"</td>"
         +"<td>"+esc(shiftName(e.shift))+"</td>"
+        +"<td>"+geoCell(e)+"</td>"
         +'<td><button class="btn danger-link" data-del="'+esc(e.uid)+'">Remove</button></td>'
         +"</tr>";
     }).join("");
     return '<div class="dayhead">'+esc(fmtDate(dk))+'<span class="cnt">'+list.length+" entr"+(list.length===1?"y":"ies")+"</span></div>"
-      +'<table><thead><tr><th>Time</th><th>Name</th><th>Shift</th><th></th></tr></thead><tbody>'+rows+"</tbody></table>";
+      +'<table><thead><tr><th>Time</th><th>Name</th><th>Shift</th><th>Location</th><th></th></tr></thead><tbody>'+rows+"</tbody></table>";
+  }
+  function geoCell(e){
+    if(!e.lat) return '<span class="geo none">no location</span>';
+    var link='https://www.google.com/maps?q='+encodeURIComponent(e.lat+","+e.lon);
+    var d=e.dist===""||e.dist==null ? "" : (e.dist<1000 ? e.dist+" m" : (e.dist/1000).toFixed(1)+" km");
+    var cls=e.atfarm==="yes" ? "ok" : "far";
+    var label=e.atfarm==="yes" ? "at farm" : d+" away";
+    return '<a class="geo '+cls+'" href="'+esc(link)+'" target="_blank" rel="noopener">'+esc(label)+"</a>";
   }
   async function removeEntry(uid){
     if(!window.confirm("Remove this check-in from the ledger?")) return;
@@ -433,10 +509,10 @@
 
   /* ---------- admin: CSV ---------- */
   $("btn-csv").addEventListener("click", function(){
-    var rows=[["date","time","name","shift","iso_timestamp"]];
+    var rows=[["date","time","name","shift","latitude","longitude","accuracy_m","distance_m","at_farm","iso_timestamp"]];
     Object.keys(allDays).sort().forEach(function(dk){
       allDays[dk].forEach(function(e){
-        rows.push([dk, fmtTime(e.ts), e.name, shiftName(e.shift), e.iso||new Date(e.ts).toISOString()]);
+        rows.push([dk, fmtTime(e.ts), e.name, shiftName(e.shift), e.lat||"", e.lon||"", e.acc||"", e.dist||"", e.atfarm||"", e.iso||new Date(e.ts).toISOString()]);
       });
     });
     var csv=rows.map(function(r){
@@ -476,5 +552,7 @@
 
 })();
 </script>
+</body>
+</html>
 </body>
 </html>
