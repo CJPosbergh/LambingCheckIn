@@ -264,18 +264,21 @@
   /* ---------- shifts ---------- */
   /* shifts by start time; from/to are minutes from 4:00 AM so the day wraps cleanly */
   var SHIFTS=[
-    {id:"s4am",  name:"4 AM",     t:"starts 4:00 AM",  from:0,    to:240},
-    {id:"s8am",  name:"8 AM",     t:"starts 8:00 AM",  from:240,  to:480},
-    {id:"snoon", name:"Noon",     t:"starts 12:00 PM", from:480,  to:720},
-    {id:"s4pm",  name:"4 PM",     t:"starts 4:00 PM",  from:720,  to:960},
-    {id:"s8pm",  name:"8 PM",     t:"starts 8:00 PM",  from:960,  to:1199},
-    {id:"smid",  name:"Midnight", t:"starts 11:59 PM", from:1199, to:1440}
+    {id:"s4am",  name:"4 AM",     t:"starts 4:00 AM",  from:120,  to:360},
+    {id:"s8am",  name:"8 AM",     t:"starts 8:00 AM",  from:360,  to:600},
+    {id:"snoon", name:"Noon",     t:"starts 12:00 PM", from:600,  to:840},
+    {id:"s4pm",  name:"4 PM",     t:"starts 4:00 PM",  from:840,  to:1080},
+    {id:"s8pm",  name:"8 PM",     t:"starts 8:00 PM",  from:1080, to:1320},
+    {id:"smid",  name:"Midnight", t:"starts 11:59 PM", from:1320, to:120}
   ];
   function currentShiftId(){
     var d=new Date();
-    var m=d.getHours()*60+d.getMinutes()-240; /* minutes since 4:00 AM */
-    if(m<0) m+=1440;
-    for(var i=0;i<SHIFTS.length;i++) if(m>=SHIFTS[i].from && m<SHIFTS[i].to) return SHIFTS[i].id;
+    var m=d.getHours()*60+d.getMinutes(); /* minutes since midnight */
+    for(var i=0;i<SHIFTS.length;i++){
+      var s=SHIFTS[i];
+      if(s.from<s.to){ if(m>=s.from && m<s.to) return s.id; }
+      else{ if(m>=s.from || m<s.to) return s.id; } /* window wraps past midnight */
+    }
     return "s4am";
   }
   function shiftName(id){for(var i=0;i<SHIFTS.length;i++) if(SHIFTS[i].id===id) return SHIFTS[i].name; return id;}
