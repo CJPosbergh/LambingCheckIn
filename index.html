@@ -165,11 +165,11 @@
 
     <label id="shift-label">Shift</label>
     <div class="chips" role="group" aria-labelledby="shift-label" id="chips"></div>
-    <p class="hint">The shift matching the current time is pre-selected — change it if you're covering a different one.</p>
+    <p class="hint">The shift matching the current time is pre-selected — be sure to check that it is the correct one you signed up for.</p>
 
     <div class="notice">
       <strong>Your location is recorded when you tap Check in.</strong>
-      This confirms you're physically at the farm for your shift. Your phone will ask permission — allow it, and a single location reading is saved with your check-in. Nothing is tracked before or after that moment, and the app does not follow your location at any other time.
+      This corroborates you're physically at the farm for your lambing check. Your phone will ask permission — please allow it, and a single location reading is saved with your check-in. Nothing is tracked before or after that moment, and the app does not follow your location at any other time.
     </div>
 
     <button class="btn" id="btn-checkin">Check in now</button>
@@ -188,7 +188,7 @@
   </div>
 
   <div class="card">
-    <h2>Today at the barn</h2>
+    <h2>Today at Fort Ellis</h2>
     <ul class="ledger" id="today-ledger"><li class="empty">Loading…</li></ul>
   </div>
 
@@ -424,8 +424,8 @@
       $("tag-when").textContent=fmtDate(entry.date).replace(/^[A-Za-z]+, /,"")+" · "+fmtTime(entry.ts);
       $("tag-shift").textContent=shiftName(entry.shift)+" shift";
       var geoNote = entry.atfarm==="yes" ? "Location confirmed at the farm."
-                  : entry.atfarm==="no"  ? "Recorded, but your phone placed you away from the barn — mention it to your shift lead."
-                  : "Recorded without location — your instructor may follow up.";
+                  : entry.atfarm==="no"  ? "Recorded, but your phone placed you away from Ft. Ellis — Please reach out to your TAs/instructors"
+                  : "Recorded without location — your TAs/instructors may follow up.";
       $("tagcap").textContent = (n===1 ? "First shift logged. " : "That's "+n+" shifts logged. ") + geoNote;
       $("tagwrap").classList.add("show");
       $("tagwrap").scrollIntoView({behavior:"smooth", block:"center"});
