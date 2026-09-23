@@ -975,21 +975,42 @@
   /* ---------- backend ---------- */
   var DATA={entries:[],ewes:[],lambings:[],lambs:[],treatments:[],deaths:[],moves:[]};
   function apiReady(){ return API_URL.indexOf("https://")===0 && API_URL.indexOf("PASTE_YOUR")<0; }
-  async function apiAll(force){
-    if(!apiReady()) throw new Error("API_URL is not set");
-    var r=await fetch(API_URL+"?action=all&t="+(force?Date.now():Math.floor(Date.now()/15000)));
-    var j=await r.json();
-    if(!j.ok) throw new Error(j.error||"fetch failed");
-    DATA={
-      entries:   (j.entries||[]).sort(function(a,b){return a.ts-b.ts;}),
-      ewes:      j.ewes||[],
-      lambings:  (j.lambings||[]).sort(function(a,b){return a.ts-b.ts;}),
-      lambs:     j.lambs||[],
-      treatments:(j.treatments||[]).sort(function(a,b){return a.ts-b.ts;}),
-      deaths:    (j.deaths||[]).sort(function(a,b){return a.ts-b.ts;}),
-      moves:     (j.moves||[]).sort(function(a,b){return a.ts-b.ts;})
-    };
+  var lastFetch=0, inFlight=null;
+
+  /* Merge only the keys the server actually sent, so a scoped fetch that
+     leaves out check-ins doesn't wipe the copy we already have. */
+  function mergeData(j){
+    var byTs=function(a,b){return a.ts-b.ts;};
+    if(j.entries)    DATA.entries    = j.entries.slice().sort(byTs);
+    if(j.ewes)       DATA.ewes       = j.ewes;
+    if(j.lambings)   DATA.lambings   = j.lambings.slice().sort(byTs);
+    if(j.lambs)      DATA.lambs      = j.lambs;
+    if(j.treatments) DATA.treatments = j.treatments.slice().sort(byTs);
+    if(j.deaths)     DATA.deaths     = j.deaths.slice().sort(byTs);
+    if(j.moves)      DATA.moves      = j.moves.slice().sort(byTs);
     return DATA;
+  }
+
+  /* apiAll(true) forces a refetch; apiAll() reuses anything fetched in the
+     last few seconds. `scope` lets a screen ask for only what it needs —
+     "records" skips the CheckIns tab, which is by far the biggest and is
+     not used by the lambing screens. An older script ignores it and simply
+     returns everything, which still works. */
+  async function apiAll(force, scope){
+    if(!apiReady()) throw new Error("API_URL is not set");
+    if(!force && Date.now()-lastFetch < 8000) return DATA;
+    if(inFlight) return inFlight;                 /* don't stack duplicate calls */
+    var url=API_URL+"?action="+(scope==="records"?"records":"all")+"&t="+Date.now();
+    inFlight=(async function(){
+      try{
+        var r=await fetch(url);
+        var j=await r.json();
+        if(!j.ok) throw new Error(j.error||"fetch failed");
+        lastFetch=Date.now();
+        return mergeData(j);
+      } finally { inFlight=null; }
+    })();
+    return inFlight;
   }
   async function apiPost(payload){
     var r=await fetch(API_URL,{method:"POST",body:JSON.stringify(payload)});
@@ -1939,13 +1960,32 @@
   /* ==========================================================
      TAB 5 — LIVE REPORT
      ========================================================== */
+  /* Paint from whatever is already in memory first, then refresh behind it.
+     The numbers are cheap to compute — the wait was always the round trip. */
   async function renderReport(){
     var st=$("report-status");
-    st.textContent="Loading…";
+    if(!apiReady()){
+      ["report-stats","pen-card","cause-card","followup-card","recent-card"].forEach(function(id){ $(id).hidden=true; });
+      st.textContent="Setup needed: paste your Apps Script URL into API_URL."; return;
+    }
+    var have=DATA.lambings.length>0;
+    if(have){ paintReport(); st.textContent=st.textContent+" · updating…"; }
+    else{
+      ["report-stats","pen-card","cause-card","followup-card","recent-card"].forEach(function(id){ $(id).hidden=true; });
+      st.textContent="Loading…";
+    }
+    try{ await apiAll(true,"records"); }
+    catch(e){
+      if(!have) st.textContent="Couldn't reach the sheet — check your connection.";
+      else st.textContent=st.textContent.replace(" · updating…"," · could not refresh");
+      return;
+    }
+    paintReport();
+  }
+
+  function paintReport(){
+    var st=$("report-status");
     ["report-stats","pen-card","cause-card","followup-card","recent-card"].forEach(function(id){ $(id).hidden=true; });
-    if(!apiReady()){ st.textContent="Setup needed: paste your Apps Script URL into API_URL."; return; }
-    try{ await apiAll(true); }
-    catch(e){ st.textContent="Couldn't reach the sheet — check your connection."; return; }
 
     var L=DATA.lambings, B=DATA.lambs, T=DATA.treatments, D=DATA.deaths;
     if(!L.length){ st.textContent="No lambings recorded yet. The first record will fill this in."; return; }
