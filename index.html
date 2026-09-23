@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ANSC Lambing Check In — MAES Ft. Ellis</title>
+<title>ANSC 132: Lambing — MAES Ft. Ellis</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -25,41 +25,60 @@
     --body:'Public Sans',system-ui,-apple-system,sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
+  /* class rules like .stats{display:grid} otherwise beat the [hidden] attribute
+     and leave "hidden" elements on screen. This keeps hidden meaning hidden. */
+  [hidden]{display:none !important}
   html{-webkit-text-size-adjust:100%}
   body{background:var(--field);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;min-height:100vh}
   a{color:var(--blue)}
   button{font-family:inherit;cursor:pointer}
-  input,select{font-family:inherit;font-size:16px}
+  input,select,textarea{font-family:inherit;font-size:16px}
   :focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:4px}
 
   .wrap{max-width:540px;margin:0 auto;padding:20px 16px 56px}
-  .wrap.wide{max-width:900px}
+  .wrap.wide{max-width:960px}
 
   /* Header */
-  header.site{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:3px solid var(--ink);padding-bottom:12px;margin-bottom:20px}
-  .brandwrap{display:flex;align-items:center;gap:11px;min-width:0}
+  header.site{display:flex;align-items:center;justify-content:space-between;gap:10px 12px;flex-wrap:wrap;
+              border-bottom:3px solid var(--ink);padding-bottom:12px;margin-bottom:14px}
+  .brandwrap{display:flex;align-items:center;gap:11px;min-width:0;flex:1 1 auto}
   .logo{height:46px;width:46px;object-fit:contain;flex-shrink:0}
   .brand{font-family:var(--slab);font-weight:700;font-size:22px;letter-spacing:.2px}
-  .brand small{display:block;font-family:var(--body);font-weight:600;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:2px}
-  .clock{font-family:var(--mono);font-size:13px;color:var(--muted);white-space:nowrap}
+  .brand small{display:block;font-family:var(--body);font-weight:600;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+  .clock{font-family:var(--mono);font-size:13px;color:var(--muted);white-space:nowrap;flex:0 0 auto;margin-left:auto}
+
+  /* Tab bar — wraps to a second row rather than scrolling, so no tab is ever
+     hidden off the edge on a phone. */
+  .tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+  .tab{flex:0 1 auto;padding:10px 14px;border:1.5px solid var(--line);border-radius:22px;background:#FCFCFA;
+       font-size:13.5px;font-weight:700;color:var(--muted);white-space:nowrap;letter-spacing:.01em}
+  .tab:hover{border-color:var(--blue);color:var(--blue-dk)}
+  .tab[aria-selected="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+  .tab[aria-selected="true"]:hover{color:#fff}
 
   .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 1px 2px rgba(22,39,61,.05)}
   h2{font-family:var(--slab);font-weight:600;font-size:19px;margin-bottom:12px}
+  h3{font-family:var(--slab);font-weight:600;font-size:16px;margin-bottom:8px}
   label{display:block;font-weight:600;font-size:13px;letter-spacing:.02em;margin:14px 0 6px}
-  label:first-of-type{margin-top:0}
-  .field{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:8px;background:#FCFCFA}
+  label.first,label:first-of-type{margin-top:0}
+  .field{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:8px;background:#FCFCFA;color:var(--ink)}
   .field:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 3px rgba(30,77,140,.15)}
+  textarea.field{resize:vertical;min-height:64px}
   .hint{font-size:12.5px;color:var(--muted);margin-top:5px}
   .notice{margin-top:18px;padding:13px 15px;border:1px solid #D6DFEA;border-left:4px solid var(--blue);
           border-radius:8px;background:#F4F7FB;font-size:13.5px;line-height:1.5;color:#2C4460}
   .notice strong{display:block;font-weight:700;color:var(--blue-dk);margin-bottom:4px}
 
-  /* Shift chips */
+  /* chips (shifts, sex, status, pens) */
   .chips{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .chips.three{grid-template-columns:1fr 1fr 1fr}
+  .chips.auto{display:flex;flex-wrap:wrap;gap:8px}
   .chip{padding:11px 8px;border:1.5px solid var(--line);border-radius:8px;background:#FCFCFA;font-weight:600;font-size:14px;text-align:center;color:var(--ink)}
+  .chips.auto .chip{flex:0 0 auto;padding:10px 14px}
   .chip .t{display:block;font-family:var(--mono);font-weight:400;font-size:11px;color:var(--muted);margin-top:2px}
   .chip[aria-pressed="true"]{border-color:var(--blue);background:#EAF0F8;color:var(--blue-dk)}
   .chip[aria-pressed="true"] .t{color:var(--blue-dk)}
+  .chip.dead[aria-pressed="true"]{border-color:var(--red);background:#F7E9E6;color:var(--red)}
 
   .btn{display:block;width:100%;padding:15px;border:none;border-radius:10px;background:var(--blue);color:#fff;font-size:17px;font-weight:700;letter-spacing:.01em;margin-top:18px}
   .btn:hover{background:var(--blue-dk)}
@@ -69,6 +88,7 @@
   .btn.gold{background:var(--gold-dk)}
   .btn.gold:hover{background:#8F6E2E}
   .btn.danger-link{background:none;border:none;color:var(--red);font-size:13px;font-weight:600;width:auto;padding:4px;margin:0}
+  .btn.inline{width:auto;margin:0;padding:11px 16px;font-size:14px}
 
   .msg{border-radius:8px;padding:11px 13px;font-size:14px;margin-top:14px;display:none}
   .msg.err{display:block;background:#F7E9E6;color:var(--red);border:1px solid #E3C4BD}
@@ -107,8 +127,99 @@
   .ledger .ls{margin-left:auto;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue-dk);background:#EAF0F8;padding:2px 8px;border-radius:20px;white-space:nowrap}
   .empty{color:var(--muted);font-size:14px;padding:6px 0}
 
-  footer.site{text-align:center;margin-top:26px;font-size:13px;color:var(--muted)}
+  /* ————— Ewe picker ————— */
+  .ewe-results{margin-top:8px;max-height:230px;overflow-y:auto;border:1.5px solid var(--line);border-radius:8px;background:#FCFCFA}
+  .ewe-results:empty{display:none}
+  .ewe-opt{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;border:none;background:none;
+           border-bottom:1px solid var(--line);font-size:15px;font-weight:600;text-align:left;color:var(--ink)}
+  .ewe-opt:last-child{border-bottom:none}
+  .ewe-opt:hover{background:#EAF0F8}
+  .ewe-opt .meta{margin-left:auto;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .ewe-opt .meta.done{color:var(--gold-dk);background:#FAF3E2;padding:2px 8px;border-radius:20px}
+  .chosen{display:flex;align-items:center;gap:10px;margin-top:10px;padding:12px 14px;border:1.5px solid var(--blue);
+          border-radius:8px;background:#EAF0F8;font-weight:700;color:var(--blue-dk)}
+  .chosen .x{margin-left:auto;background:none;border:none;color:var(--blue-dk);font-size:20px;line-height:1;padding:0 4px}
+
+  /* ————— Lamb cards ————— */
+  .lamb{border:1.5px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px;background:#FCFCFA}
+  .lamb.dead{border-color:#E3C4BD;background:#FDF6F4}
+  .lamb-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .lamb-head .n{font-family:var(--slab);font-weight:700;font-size:16px}
+  .lamb-head .rm{margin-left:auto;background:none;border:none;color:var(--red);font-size:12.5px;font-weight:700}
+  .scanrow{display:flex;gap:8px}
+  .scanrow .field{flex:1;min-width:0;font-family:var(--mono)}
+  .scanbtn{flex:0 0 auto;width:52px;border:1.5px solid var(--line);border-radius:8px;background:#fff;font-size:20px;line-height:1}
+  .scanbtn:hover{border-color:var(--blue);background:#EAF0F8}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+  /* ————— Checklist: the fork ————— */
+  .pathbtn{display:block;width:100%;text-align:left;border:1.5px solid var(--line);border-radius:12px;
+           background:#FCFCFA;padding:18px;margin-bottom:10px}
+  .pathbtn:hover{border-color:var(--blue);background:#EAF0F8}
+  .pathbtn .pt{display:block;font-family:var(--slab);font-weight:700;font-size:20px;line-height:1.2;color:var(--ink)}
+  .pathbtn .ps{display:block;font-size:14px;color:var(--muted);margin-top:6px;line-height:1.45}
+  .pathbtn.urgent{border-color:#E3C4BD;background:#FDF6F4}
+  .pathbtn.urgent:hover{border-color:var(--red);background:#F9EBE7}
+  .pathbtn.watch{border-color:#E4D3AC;background:#FAF6EC}
+  .pathbtn.watch:hover{border-color:var(--gold-dk);background:#F5EDDB}
+  .pathcrumb{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;
+             letter-spacing:.04em;color:var(--muted);margin-bottom:10px}
+  .pathcrumb button{background:none;border:none;color:var(--blue);font-size:12.5px;font-weight:700;
+                    text-decoration:underline;padding:2px}
+
+  /* ————— Checklist stepper ————— */
+  .stepphoto{display:block;width:100%;border-radius:10px;border:1px solid var(--line);
+             margin:0 0 4px;background:#EEF0EC}
+  .photocap{font-size:12.5px;color:var(--muted);margin-bottom:12px;font-style:italic}
+  .steptrack{display:flex;gap:4px;margin-bottom:16px}
+  .steptrack i{flex:1;height:5px;border-radius:3px;background:var(--line)}
+  .steptrack i.on{background:var(--blue)}
+  .steptrack i.done{background:var(--green)}
+  .stepnum{font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .steptitle{font-family:var(--slab);font-weight:700;font-size:26px;line-height:1.2;margin-bottom:10px}
+  .stepbody{font-size:16px;line-height:1.55}
+  .stepbody ul{margin:10px 0 0 20px}
+  .stepbody ul.lead{margin-top:0}   /* step with bullets but no lead paragraph */
+  .stepbody ul ul{margin:6px 0 2px 18px;list-style:circle}
+  .stepbody ul ul li{margin-bottom:3px;font-size:15px;color:#43515F}
+  .stepbody li{margin-bottom:5px}
+  .steptip{margin-top:14px;padding:11px 13px;border-left:4px solid var(--gold);background:#FAF6EC;border-radius:0 8px 8px 0;font-size:14px;color:#5A4A22}
+  .stepnav{display:flex;gap:10px;margin-top:18px}
+  .stepnav .btn{margin-top:0}
+  .stepnav .back{flex:0 0 34%}
+  .stepnav .next{flex:1}
+
+  /* ————— Occupancy board ————— */
+  .jugs{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-bottom:16px}
+  .jug{border:1.5px solid var(--line);border-radius:10px;padding:10px;background:#FCFCFA;min-height:78px}
+  .jug.full{border-color:var(--blue);background:#EAF0F8}
+  .jug .jn{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .jug.full .jn{color:var(--blue-dk)}
+  .jug .je{font-family:var(--slab);font-weight:700;font-size:18px;margin-top:3px;word-break:break-all}
+  .jug .jl{font-size:12px;color:var(--muted);margin-top:2px}
+  .jug .jd{font-size:11px;color:var(--muted);margin-top:3px;font-family:var(--mono)}
+  .jug.empty .je{font-family:var(--body);font-size:13px;font-weight:600;color:#9AA7B6;margin-top:8px}
+  .grouphead{font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:4px 0 8px}
+  .mixlist{list-style:none}
+  .mixlist li{display:flex;align-items:baseline;gap:10px;padding:8px 2px;border-bottom:1px dashed var(--line);font-size:14.5px}
+  .mixlist li:last-child{border-bottom:none}
+  .mixlist .ml{margin-left:auto;font-size:12px;color:var(--muted);font-family:var(--mono)}
+  .chip.taken{opacity:.62}
+  .chip.taken .t{color:var(--gold-dk);font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:10px}
+
+  /* ————— Report ————— */
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .stat{border:1.5px solid var(--line);border-radius:10px;padding:14px;background:#FCFCFA}
+  .stat .v{font-family:var(--slab);font-weight:700;font-size:30px;line-height:1.05;color:var(--blue-dk)}
+  .stat .k{font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+  .stat.warn .v{color:var(--red)}
+  .followup{border:1.5px solid #E3C4BD;background:#FDF6F4;border-radius:8px;padding:12px 14px;margin-bottom:8px;font-size:14px}
+  .followup b{display:block;color:var(--red);font-size:13px;letter-spacing:.03em;text-transform:uppercase;margin-bottom:3px}
+
+  footer.site{text-align:center;margin-top:26px;font-size:13px;color:var(--muted);line-height:1.7}
   footer.site button{background:none;border:none;color:var(--muted);text-decoration:underline;font-size:13px}
+  .lamp{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--line);margin-right:5px;vertical-align:middle}
+  .lamp.on{background:var(--gold)}
 
   /* Admin */
   .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
@@ -124,6 +235,22 @@
   .dayhead{font-family:var(--slab);font-weight:600;font-size:17px;margin:20px 0 6px}
   .dayhead .cnt{font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400;margin-left:8px}
   .loadnote{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+  .tablewrap{overflow-x:auto}
+
+  /* ————— Scanner overlay ————— */
+  .scrim{position:fixed;inset:0;background:rgba(10,18,29,.94);z-index:100;display:none;
+         flex-direction:column;align-items:center;justify-content:center;padding:18px}
+  .scrim.show{display:flex}
+  .scanstage{position:relative;width:100%;max-width:420px;aspect-ratio:3/4;border-radius:14px;overflow:hidden;background:#000}
+  .scanstage video{width:100%;height:100%;object-fit:cover;display:block}
+  .reticle{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+  .reticle b{width:62%;aspect-ratio:1/1;border:3px dashed var(--gold);border-radius:10px;box-shadow:0 0 0 2000px rgba(0,0,0,.35)}
+  .scanlabel{color:#F2F4F0;font-weight:700;font-size:17px;margin-bottom:12px;text-align:center}
+  .scanstatus{color:#B9C4CD;font-size:13.5px;margin-top:12px;text-align:center;min-height:20px;max-width:420px}
+  .scanacts{display:flex;gap:10px;margin-top:16px;width:100%;max-width:420px}
+  .scanacts .btn{margin-top:0;flex:1}
+  .scanacts .btn.quiet{color:#F2F4F0;border-color:#44525F}
+  .scanacts .btn.quiet:hover{background:#22303D;border-color:#6A7A88}
 
   /* QR poster */
   #qrbox{display:flex;justify-content:center;padding:14px 0}
@@ -139,61 +266,315 @@
     .poster ol{display:inline-block;text-align:left;font-size:16px;margin-top:24px;padding-left:22px}
     .poster ol li{margin-bottom:6px}
   }
+  @media (max-width:480px){
+    .brandwrap{flex:1 1 100%}      /* clock drops to its own line instead of squeezing the title */
+    .clock{font-size:12px}
+  }
   @media (max-width:420px){
     .brand{font-size:19px}
     .logo{height:38px;width:38px}
     .eartag{width:210px}
+    .steptitle{font-size:23px}
+    .two{grid-template-columns:1fr}
   }
 </style>
 </head>
 <body>
 
-<!-- ================= STUDENT VIEW ================= -->
-<div class="wrap no-print" id="view-student">
+<!-- ================= APP (students) ================= -->
+<div class="wrap no-print" id="view-app">
   <header class="site">
     <div class="brandwrap">
-      <img class="logo" src="logo.png" alt="MSU Extension Sheep Program" onerror="this.style.display='none'">
-      <div class="brand">ANSC Lambing CheckIn<small>MAES Ft. Ellis · ANSC 132: Lambing</small></div>
+      <img class="logo" src="logo.png" alt="MSU Department of Animal &amp; Range Sciences" onerror="this.style.display='none'">
+      <div class="brand">ANSC 132: Lambing<small>MAES Ft. Ellis</small></div>
     </div>
     <div class="clock" id="clock"></div>
   </header>
 
-  <div class="card">
-    <h2>Record your shift</h2>
-    <label for="in-name">Full name</label>
-    <input class="field" id="in-name" autocomplete="name" placeholder="e.g. Jordan Ricci" maxlength="60">
+  <div class="tabs" role="tablist" id="tabs"></div>
 
-    <label id="shift-label">Shift</label>
-    <div class="chips" role="group" aria-labelledby="shift-label" id="chips"></div>
-    <p class="hint">The shift matching the current time is pre-selected — be sure to check that it is the correct one you signed up for.</p>
+  <!-- ---------- TAB: Check in ---------- -->
+  <section id="pane-checkin" role="tabpanel">
+    <div class="card">
+      <h2>Record your shift</h2>
+      <label for="in-name">Full name</label>
+      <input class="field" id="in-name" autocomplete="name" placeholder="e.g. Jordan Ricci" maxlength="60">
 
-    <div class="notice">
-      <strong>Your location is recorded when you tap Check in.</strong>
-      This corroborates you're physically at the farm for your lambing check. Your phone will ask permission — please allow it, and a single location reading is saved with your check-in. Nothing is tracked before or after that moment, and the app does not follow your location at any other time.
+      <label id="shift-label">Shift</label>
+      <div class="chips three" role="group" aria-labelledby="shift-label" id="chips"></div>
+      <p class="hint">The shift closest to right now is pre-selected — change it if you're covering a different one.</p>
+
+      <div class="notice">
+        <strong>Your location is recorded when you tap Check in.</strong>
+        This confirms you're physically at the farm for your shift. Your phone will ask permission — allow it, and a single location reading is saved with your check-in. Nothing is tracked before or after that moment, and the app does not follow your location at any other time.
+      </div>
+
+      <button class="btn" id="btn-checkin">Check in now</button>
+      <div class="msg" id="student-msg" role="status"></div>
     </div>
 
-    <button class="btn" id="btn-checkin">Check in now</button>
-    <div class="msg" id="student-msg" role="status"></div>
-  </div>
-
-  <div class="tagwrap" id="tagwrap" aria-live="polite">
-    <div class="eartag">
-      <div class="eyebrow">Shift</div>
-      <div class="num" id="tag-num">—</div>
-      <div class="who" id="tag-who"></div>
-      <div class="when" id="tag-when"></div>
-      <div class="shiftline" id="tag-shift"></div>
+    <div class="tagwrap" id="tagwrap" aria-live="polite">
+      <div class="eartag">
+        <div class="eyebrow">Shift</div>
+        <div class="num" id="tag-num">—</div>
+        <div class="who" id="tag-who"></div>
+        <div class="when" id="tag-when"></div>
+        <div class="shiftline" id="tag-shift"></div>
+      </div>
+      <p class="tagcap" id="tagcap">You're checked in. Show this tag to the shift lead if asked.</p>
     </div>
-    <p class="tagcap" id="tagcap">You're checked in. Show this tag to the shift lead if asked.</p>
-  </div>
 
-  <div class="card">
-    <h2>Today at Fort Ellis</h2>
-    <ul class="ledger" id="today-ledger"><li class="empty">Loading…</li></ul>
-  </div>
+    <div class="card">
+      <h2>Today at the barn</h2>
+      <ul class="ledger" id="today-ledger"><li class="empty">Loading…</li></ul>
+    </div>
+  </section>
+
+  <!-- ---------- TAB: New Lambs ---------- -->
+  <section id="pane-lambing" role="tabpanel" hidden>
+    <div class="card">
+      <h2>Which ewe lambed?</h2>
+      <label for="ewe-search">Find her by ID</label>
+      <input class="field" id="ewe-search" autocomplete="off" placeholder="Start typing an ewe ID…">
+      <div class="ewe-results" id="ewe-results"></div>
+      <div id="ewe-chosen"></div>
+      <p class="hint" id="ewe-hint">Loading the ewe list…</p>
+    </div>
+
+    <div class="card">
+      <h2>Where and how</h2>
+      <label id="pen-label">Jug she was put in after lambing</label>
+      <div class="chips auto" role="group" aria-labelledby="pen-label" id="pen-chips"></div>
+      <p class="hint" id="jug-hint">Jugs already holding a ewe are marked — pick an empty one.</p>
+
+      <label for="in-assist">Assistance</label>
+      <select class="field" id="in-assist">
+        <option value="None">None — unassisted</option>
+        <option value="Minor assist">Minor assist</option>
+        <option value="Hard pull">Hard pull</option>
+        <option value="Malpresentation">Malpresentation</option>
+        <option value="Vet called">Vet called</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <h2>Lambs</h2>
+      <p class="hint" style="margin:0 0 12px">One card per lamb, including any born dead. Tap the camera to scan a tag or TSU barcode instead of typing it.</p>
+      <div id="lamb-list"></div>
+      <button class="btn quiet" id="btn-add-lamb">+ Add another lamb</button>
+    </div>
+
+    <div class="card">
+      <h2>Anything else</h2>
+      <label for="in-lamb-notes">Notes on the ewe or the lambing</label>
+      <textarea class="field" id="in-lamb-notes" rows="3" placeholder="e.g. ewe slow to clean, prolapse, weak triplet"></textarea>
+
+      <label for="in-followup">Does this need follow-up?</label>
+      <div class="chips" role="group" id="followup-chips"></div>
+      <textarea class="field" id="in-followup-note" rows="2" placeholder="What needs checking, and when?" style="margin-top:10px" hidden></textarea>
+
+      <label for="in-recorder">Recorded by</label>
+      <input class="field" id="in-recorder" autocomplete="name" placeholder="Your name" maxlength="60">
+
+      <button class="btn" id="btn-save-lambing">Save lambing record</button>
+      <div class="msg" id="lambing-msg" role="status"></div>
+    </div>
+  </section>
+
+  <!-- ---------- TAB: Move ---------- -->
+  <section id="pane-move" role="tabpanel" hidden>
+    <div class="card">
+      <h2>Move a ewe and her lambs</h2>
+      <label for="move-search" class="first">Which ewe is moving?</label>
+      <input class="field" id="move-search" autocomplete="off" placeholder="Type a ewe ID, or pick one below">
+      <div class="ewe-results" id="move-results"></div>
+      <div id="move-chosen"></div>
+      <p class="hint" id="move-hint">Loading…</p>
+    </div>
+
+    <div class="card" id="move-details" hidden>
+      <h2>Where to</h2>
+      <label id="dest-label" class="first">New location</label>
+      <div class="chips auto" role="group" aria-labelledby="dest-label" id="dest-chips"></div>
+      <p class="hint" id="dest-hint"></p>
+
+      <div class="two">
+        <div>
+          <label class="first" for="in-lambcount">Lambs moving with her</label>
+          <input class="field" id="in-lambcount" inputmode="numeric" placeholder="0">
+        </div>
+        <div>
+          <label class="first" for="in-mrecorder">Recorded by</label>
+          <input class="field" id="in-mrecorder" autocomplete="name" placeholder="Your name" maxlength="60">
+        </div>
+      </div>
+
+      <label for="in-mnotes">Notes</label>
+      <input class="field" id="in-mnotes" autocomplete="off" placeholder="optional">
+
+      <button class="btn" id="btn-save-move">Record the move</button>
+      <div class="msg" id="move-msg" role="status"></div>
+    </div>
+
+    <div class="card">
+      <h2>Where everyone is</h2>
+      <p class="loadnote" id="board-status">Loading…</p>
+      <div id="board"></div>
+    </div>
+  </section>
+
+  <!-- ---------- TAB: Treatment / loss ---------- -->
+  <section id="pane-treatment" role="tabpanel" hidden>
+    <div class="card" style="padding:14px">
+      <div class="chips" role="group" aria-label="What are you recording?" id="mode-chips"></div>
+    </div>
+
+    <div class="card" id="treat-form">
+      <h2>Record a treatment</h2>
+
+      <label id="atype-label">Animal</label>
+      <div class="chips" role="group" aria-labelledby="atype-label" id="atype-chips"></div>
+
+      <label for="in-animal">Animal ID</label>
+      <div class="scanrow">
+        <input class="field" id="in-animal" autocomplete="off" placeholder="Ewe or lamb ID">
+        <button class="scanbtn" id="btn-scan-animal" title="Scan tag barcode" aria-label="Scan tag barcode">▣</button>
+      </div>
+
+      <label for="in-treatment">Treatment given</label>
+      <input class="field" id="in-treatment" autocomplete="off" placeholder="e.g. colostrum replacer, Nuflor, selenium">
+
+      <div class="two">
+        <div>
+          <label for="in-dose" class="first">Dose</label>
+          <input class="field" id="in-dose" autocomplete="off" placeholder="e.g. 2 cc">
+        </div>
+        <div>
+          <label for="in-route" class="first">Route</label>
+          <input class="field" id="in-route" autocomplete="off" placeholder="e.g. SQ, oral, tube">
+        </div>
+      </div>
+
+      <label for="in-reason">Reason</label>
+      <input class="field" id="in-reason" autocomplete="off" placeholder="e.g. weak, not nursing, scours">
+
+      <label id="tfollow-label">Does this need follow-up?</label>
+      <div class="chips" role="group" aria-labelledby="tfollow-label" id="tfollow-chips"></div>
+
+      <label for="in-tnotes">Notes</label>
+      <textarea class="field" id="in-tnotes" rows="2"></textarea>
+
+      <label for="in-trecorder">Recorded by</label>
+      <input class="field" id="in-trecorder" autocomplete="name" placeholder="Your name" maxlength="60">
+
+      <button class="btn" id="btn-save-treatment">Save treatment</button>
+      <div class="msg" id="treatment-msg" role="status"></div>
+    </div>
+
+    <!-- ----- death / loss form ----- -->
+    <div class="card" id="death-form" hidden>
+      <h2>Record a death</h2>
+      <p class="hint" style="margin:0 0 14px">Use this for an animal that was <strong>born alive and died later</strong>. A lamb born dead belongs on its lambing record instead, under New Lambs.</p>
+
+      <label id="dtype-label" class="first">Animal</label>
+      <div class="chips" role="group" aria-labelledby="dtype-label" id="dtype-chips"></div>
+
+      <label for="in-danimal">Animal ID</label>
+      <div class="scanrow">
+        <input class="field" id="in-danimal" autocomplete="off" placeholder="Ewe or lamb ID">
+        <button class="scanbtn" id="btn-scan-danimal" title="Scan tag barcode" aria-label="Scan tag barcode">▣</button>
+      </div>
+      <p class="hint" id="age-hint"></p>
+
+      <label for="in-dfound">Date found</label>
+      <input class="field" id="in-dfound" type="date">
+
+      <label id="cause-label">Probable cause</label>
+      <div class="chips auto" role="group" aria-labelledby="cause-label" id="cause-chips"></div>
+      <input class="field" id="in-cause" autocomplete="off" placeholder="Type it, or tap one above" style="margin-top:8px">
+
+      <div class="two">
+        <div>
+          <label class="first" id="necropsy-label">Necropsy done?</label>
+          <div class="chips" role="group" aria-labelledby="necropsy-label" id="necropsy-chips"></div>
+        </div>
+        <div>
+          <label class="first" for="in-disposal">Disposal</label>
+          <input class="field" id="in-disposal" autocomplete="off" placeholder="e.g. compost, freezer">
+        </div>
+      </div>
+
+      <label for="in-dnotes">Notes</label>
+      <textarea class="field" id="in-dnotes" rows="3" placeholder="What you found, and anything that led up to it"></textarea>
+
+      <label for="in-drecorder">Recorded by</label>
+      <input class="field" id="in-drecorder" autocomplete="name" placeholder="Your name" maxlength="60">
+
+      <button class="btn" id="btn-save-death">Save death record</button>
+      <div class="msg" id="death-msg" role="status"></div>
+    </div>
+  </section>
+
+  <!-- ---------- TAB: Checklist ---------- -->
+  <section id="pane-checklist" role="tabpanel" hidden>
+    <!-- fork: which kind of round is this? -->
+    <div class="card" id="path-card">
+      <h2>What's going on?</h2>
+      <p class="hint" style="margin:0 0 14px">Pick one and the checklist follows from there.</p>
+      <div id="path-choices"></div>
+    </div>
+
+    <!-- the stepper for whichever path was chosen -->
+    <div id="step-wrap" hidden>
+      <div class="pathcrumb" id="pathcrumb"></div>
+      <div class="steptrack" id="steptrack" aria-hidden="true"></div>
+      <div class="card" id="step-card">
+        <div class="stepnum" id="stepnum"></div>
+        <div class="steptitle" id="steptitle"></div>
+        <img class="stepphoto" id="stepphoto" alt="" hidden>
+        <div class="photocap" id="photocap" hidden></div>
+        <div class="stepbody" id="stepbody"></div>
+        <div class="steptip" id="steptip" hidden></div>
+        <div class="stepnav">
+          <button class="btn quiet back" id="btn-step-back">Back</button>
+          <button class="btn next" id="btn-step-next">Next step</button>
+        </div>
+      </div>
+      <p class="hint" style="text-align:center">
+        <button class="btn quiet inline" id="btn-step-restart">Start over</button>
+      </p>
+    </div>
+  </section>
+
+  <!-- ---------- TAB: Report ---------- -->
+  <section id="pane-report" role="tabpanel" hidden>
+    <div class="card">
+      <h2>Season so far</h2>
+      <p class="loadnote" id="report-status">Loading…</p>
+      <div class="stats" id="report-stats" hidden></div>
+    </div>
+    <div class="card" id="pen-card" hidden>
+      <h2>Where they are now</h2>
+      <div class="tablewrap"><table id="pen-table"></table></div>
+    </div>
+    <div class="card" id="cause-card" hidden>
+      <h2>Deaths after birth, by cause</h2>
+      <div class="tablewrap"><table id="cause-table"></table></div>
+    </div>
+    <div class="card" id="followup-card" hidden>
+      <h2>Open follow-ups</h2>
+      <div id="followup-list"></div>
+    </div>
+    <div class="card" id="recent-card" hidden>
+      <h2>Most recent lambings</h2>
+      <ul class="ledger" id="recent-lambings"></ul>
+    </div>
+    <p style="text-align:center"><button class="btn quiet inline" id="btn-report-refresh">Refresh</button></p>
+  </section>
 
   <footer class="site">
-    Check-ins are recorded on a shared attendance sheet visible to the course instructor.<br>
+    <span><span class="lamp" id="lamp"></span><span id="lamp-text">Keeping the screen awake</span> · <button id="btn-lamp">turn off</button></span><br>
+    Records are saved to a shared sheet the course instructor can see.<br>
     <button id="link-admin">Instructor view</button>
   </footer>
 </div>
@@ -202,8 +583,8 @@
 <div class="wrap wide no-print" id="view-admin" hidden>
   <header class="site">
     <div class="brandwrap">
-      <img class="logo" src="logo.png" alt="MSU Extension Sheep Program" onerror="this.style.display='none'">
-      <div class="brand">Attendance ledger<small>MAES Ft. Ellis · ANSC 132: Lambing</small></div>
+      <img class="logo" src="logo.png" alt="MSU Department of Animal &amp; Range Sciences" onerror="this.style.display='none'">
+      <div class="brand">Instructor ledger<small>MAES Ft. Ellis · ANSC 132: Lambing</small></div>
     </div>
     <div class="clock" id="clock2"></div>
   </header>
@@ -215,13 +596,17 @@
     <input class="field" id="in-pass" type="password" autocomplete="off">
     <button class="btn" id="btn-gate">Open ledger</button>
     <div class="msg" id="gate-msg" role="alert"></div>
-    <p class="hint" style="margin-top:12px">The passcode keeps students out of the ledger by convention — it isn't bank-grade security, so treat this sheet as an attendance record, not a place for sensitive data.</p>
+    <p class="hint" style="margin-top:12px">The passcode keeps students out of the ledger by convention — it isn't bank-grade security, so treat this sheet as an attendance and production record, not a place for sensitive data.</p>
   </div>
 
   <div id="admin-body" hidden>
     <div class="toolbar">
       <button class="btn quiet" id="btn-refresh">Refresh</button>
-      <button class="btn gold" id="btn-csv">Download CSV</button>
+      <button class="btn gold" id="btn-csv-checkins">Check-ins CSV</button>
+      <button class="btn gold" id="btn-csv-lambs">Lambing CSV</button>
+      <button class="btn gold" id="btn-csv-treatments">Treatments CSV</button>
+      <button class="btn gold" id="btn-csv-deaths">Deaths CSV</button>
+      <button class="btn gold" id="btn-csv-moves">Movements CSV</button>
       <button class="btn quiet" id="btn-qr-toggle">QR poster</button>
       <button class="btn quiet" id="btn-back">Student view</button>
     </div>
@@ -230,30 +615,69 @@
       <h2>QR poster for the barn door</h2>
       <label for="in-url">Link the QR code should open</label>
       <input class="field" id="in-url" placeholder="Paste the shared link to this app">
-      <p class="hint">Publish or share this app, copy that link from your browser's address bar, and paste it here. Then print the poster and hang it where students check in.</p>
+      <p class="hint">Copy this app's link from your browser's address bar and paste it here. Then print the poster and hang it where students check in.</p>
       <button class="btn" id="btn-qr-make">Generate QR code</button>
       <div id="qrbox"></div>
       <button class="btn quiet" id="btn-print" hidden>Print poster</button>
     </div>
 
     <div class="card">
-      <h2>All check-ins</h2>
+      <h2>Lambing records</h2>
+      <p class="loadnote" id="lambing-status">Loading…</p>
+      <div class="tablewrap" id="admin-lambings"></div>
+    </div>
+
+    <div class="card">
+      <h2>Treatments</h2>
+      <p class="loadnote" id="treat-status">Loading…</p>
+      <div class="tablewrap" id="admin-treatments"></div>
+    </div>
+
+    <div class="card">
+      <h2>Deaths after birth</h2>
+      <p class="loadnote" id="death-status">Loading…</p>
+      <div class="tablewrap" id="admin-deaths"></div>
+    </div>
+
+    <div class="card">
+      <h2>Movements</h2>
+      <p class="loadnote" id="move-status">Loading…</p>
+      <div class="tablewrap" id="admin-moves"></div>
+    </div>
+
+    <div class="card">
+      <h2>Check-ins</h2>
       <p class="loadnote" id="admin-status">Loading entries…</p>
       <div id="admin-days"></div>
     </div>
   </div>
 </div>
 
+<!-- ================= SCANNER OVERLAY ================= -->
+<div class="scrim" id="scrim" role="dialog" aria-modal="true" aria-labelledby="scanlabel">
+  <div class="scanlabel" id="scanlabel">Scan barcode</div>
+  <div class="scanstage">
+    <video id="video" playsinline muted></video>
+    <div class="reticle"><b></b></div>
+  </div>
+  <div class="scanstatus" id="scanstatus">Starting camera…</div>
+  <div class="scanacts">
+    <button class="btn quiet" id="btn-scan-cancel">Cancel</button>
+    <button class="btn gold" id="btn-scan-manual">Type it instead</button>
+  </div>
+</div>
+
 <!-- ================= PRINTED POSTER ================= -->
 <div class="poster poster-only">
-  <img class="poster-logo" src="logo.png" alt="MSU Extension Sheep Program" onerror="this.style.display='none'">
-  <h1>ANSC Lambing CheckIn</h1>
-  <p class="sub">MAES Ft. Ellis · ANSC 132: Lambing</p>
+  <img class="poster-logo" src="logo.png" alt="MSU Department of Animal &amp; Range Sciences" onerror="this.style.display='none'">
+  <h1>ANSC 132: Lambing</h1>
+  <p class="sub">MAES Ft. Ellis</p>
   <div id="qrbox-print"></div>
   <ol>
     <li>Scan the code with your phone camera.</li>
     <li>Enter your name and confirm your shift.</li>
     <li>Tap <strong>Check in now</strong> — done.</li>
+    <li>Found lambs? Use the <strong>Checklist</strong> tab, then <strong>New Lambs</strong>.</li>
   </ol>
 </div>
 
@@ -261,8 +685,53 @@
 (function(){
   "use strict";
 
-  /* ---------- shifts ---------- */
-  /* shifts by start time; from/to are minutes from 4:00 AM so the day wraps cleanly */
+  /* ==========================================================
+     ============  THINGS YOU MAY WANT TO EDIT  ===============
+     ========================================================== */
+
+  /* --- backend + security --- */
+  var API_URL    = "https://script.google.com/macros/s/AKfycbyHrWY4qAnYyOomdjZrtPJETvkuZ83787JmHT0OHPEj1cuxLwgg7dK-BKUoqHlobFrXRA/exec";
+  var ADMIN_PASS = "MSUSheep";   /* must match ADMIN_PASS in the Apps Script */
+
+  /* --- farm location check --- */
+  var FARM_LAT = 45.6662;    /* MAES Ft. Ellis barn latitude  */
+  var FARM_LON = -110.9734;  /* MAES Ft. Ellis barn longitude */
+  var RADIUS_M = 250;        /* how close counts as "at the farm", in meters */
+
+  /* --- where animals can be ---------------------------------------
+     The normal path is  jug  ->  a mixing pen  ->  general population.
+     JUGS are the only choices when recording a lambing, since a ewe
+     goes straight into a jug. MIXING and GENERAL are the onward
+     destinations on the Move tab, and the app suggests the next step
+     along that path. Add a "Sick pen" or "Pasture" to GENERAL and it
+     appears as an option automatically.
+     ----------------------------------------------------------------- */
+  var JUGS    = ["Jug 1","Jug 2","Jug 3","Jug 4","Jug 5",
+                 "Jug 6","Jug 7","Jug 8","Jug 9","Jug 10"];
+  var MIXING  = ["Mixing pen 1","Mixing pen 2"];
+  var GENERAL = ["General population"];
+
+  var OTHER_PLACES = MIXING.concat(GENERAL);
+  var PLACES = OTHER_PLACES.concat(JUGS);  /* onward pens first — they're the common taps */
+
+  /* the usual next stop for a ewe currently at `loc` */
+  function nextPlaceAfter(loc){
+    loc=String(loc||"");
+    if(MIXING.indexOf(loc)>=0)  return GENERAL[0]||JUGS[0];
+    if(GENERAL.indexOf(loc)>=0) return GENERAL[0];
+    if(!MIXING.length)          return GENERAL[0]||JUGS[0];
+    /* coming out of a jug: whichever mixing pen is holding fewer ewes */
+    return MIXING.slice().sort(function(a,b){
+      return occupantsOf(a).length - occupantsOf(b).length;
+    })[0];
+  }
+
+  /* --- quick-tap causes of death. Tapping one fills the text box, which stays
+         editable, so students can still write in anything not listed here. --- */
+  var CAUSES = ["Starvation / exposure","Scours","Pneumonia","Joint ill",
+                "Crushed / laid on","Injury","Predation","Birth injury","Unknown"];
+
+  /* --- shifts: each window is the start time ±2 hours --- */
   var SHIFTS=[
     {id:"s4am",  name:"4 AM",     t:"starts 4:00 AM",  from:120,  to:360},
     {id:"s8am",  name:"8 AM",     t:"starts 8:00 AM",  from:360,  to:600},
@@ -271,44 +740,168 @@
     {id:"s8pm",  name:"8 PM",     t:"starts 8:00 PM",  from:1080, to:1320},
     {id:"smid",  name:"Midnight", t:"starts 11:59 PM", from:1320, to:120}
   ];
+
+  /* --- the checklists -------------------------------------------------
+     Students first pick which situation they are in, then walk that path
+     one screen at a time. Add, remove or reword steps freely — the
+     stepper and progress bar follow however many are in each list.
+
+     Per step:
+       title   the big heading
+       body    the plain instruction
+       points  optional bullet list
+       tip     optional highlighted note
+       photo   optional image, e.g. "img/navel-dip.jpg"
+       caption optional line under the photo
+
+     PHOTOS: make a folder named  img  next to index.html in your repo and
+     drop pictures in it, then put the filename in the step's `photo`.
+     Anything still missing is skipped silently, so you can add pictures
+     over the season without touching anything else. Keep them landscape
+     and under ~300 KB so they load fast on barn wifi.
+     -------------------------------------------------------------------- */
+  var PATHS = [
+    {
+      id:"routine",
+      label:"No new lambs right now",
+      sub:"Nobody is lambing and there are no new lambs to process.",
+      endLabel:"Check in",      /* last button's text… */
+      endTab:"checkin",         /* …and the tab it opens */
+      steps:[
+        { title:"Feed & Water",
+          body:"If no ewes are actively lambing and there are no new lambs, please ensure all ewes have feed and water.",
+          points:["Do all the ewes in jugs, mixing pens, and gen pop have clean water and adequate feed?",
+                  "Ensure any automatic waterers are working and all troughs/buckets are full of clean water",
+                  "Provide fresh hay to all pens as needed, and provide pellets to ewes in jugs"],
+          photo:"img/feed-water.jpg", caption:"" },
+
+        { title:"Walk the drop pen",
+          body:"Move through quietly and try look at every ewe and observe if any seem off.",
+          points:["Any ewe off on her own, pawing, or nosing the ground?",
+                  "Any ewe straining, or with a water bag showing?"],
+          photo:"img/drop-pen.jpg", caption:"" },
+
+        { title:"Observe the mixing pen",
+          body:"Move through quietly and count ewes/lambs.",
+          points:["Are any lambs looking hunched, hollow-sided, or lethargic?",
+                  "Are any ewes looking down, recumbent, not allowing her lambs to nurse?"],
+          photo:"img/mixing-pen.jpg", caption:"" },
+
+        { title:"Before you leave",
+          body:"If nothing is happening ~15-20 minutes, you are free to leave",
+          points:["Be sure all gates are as you found them",
+                  "Make a note of anything that the next students should keep an eye on",
+                  "Be sure to check into your shift before you leave the farm"],
+          photo:"", caption:"" }
+      ]
+    },
+    {
+      id:"lambs",
+      label:"New lambs found",
+      sub:"Lambs are on the ground and need processing.",
+      tone:"urgent",
+      endLabel:"Record new lambs",
+      endTab:"lambing",
+      steps:[
+        { title:"Look them over",
+          body:"Look over the ewe and lambs, observe anything that may be out of the ordinary.",
+          points:["Does she have another water bag presenting or is she finished lambing and passed the placenta?",
+                  "Are both lambs up and standing and trying to nurse/are nursing? Is she letting them nurse?",
+                  "Any sign of prolapse or a dystocia?"],
+          photo:"img/look-over.jpg", caption:"" },
+
+        { title:"Move to a jug",
+          body:"Move the lambs and ewe to a jug.",
+          points:["Make sure a jug is prepared with clean straw, fresh water and feed, and open for you to move the lambs/ewe into.",
+                  "You can slowly grab the lambs and hold them at her eye level and walk backwards slowly to the jug either holding them or dragging gently/slowly along the ground so the ewe can maintain eyes on them."],
+          photo:"img/move-to-jug.jpg", caption:"" },
+
+        { title:"Strip, Dip, Sip",
+          body:"",
+          points:["Strip: Once in the jug, confirm the ewe has colostrum/milk by stripping each teat out to see what milk she may have. If nothing comes out or it comes out miscolored/off texture, we may need to supplement colostrum and/or artificially rear the lamb.",
+                  "Dip: Dip the navel using the provided disinfectant. If the umbilicus is really long it can be trimmed to ~4 in prior to dipping.",
+                  "Sip: Watch to see that the lambs have nursed from the ewe."],
+          photo:"img/strip-dip-sip.jpg", caption:"" },
+
+        { title:"Tag & Weigh",
+          body:"",
+          points:["Every lamb needs to be tagged with an ear-tag set.",
+                  "You can also collect the tissue punch using the TSUs and applicator.",
+                  "Finally a birthweight can be collected with the sling & hanging scale."],
+          photo:"img/tag-weigh.jpg", caption:"" }
+      ]
+    },
+    {
+      id:"labor",
+      label:"A ewe is in labor",
+      sub:"She is actively lambing — nothing on the ground yet.",
+      tone:"watch",
+      endLabel:"New lambs found →",
+      endPath:"lambs",          /* hands straight into the New lambs found list */
+      steps:[
+        { title:"Note the time",
+          body:"If there is a ewe that has heavy mucus or a water bag presenting, note the time.",
+          points:["You can start a stopwatch on your phone to keep track.",
+                  "You can wait up to 60 minutes to allow the ewe to deliver the first lamb on her own.",
+                  "If no progress is made at that point, call your course TAs and instructor for assistance."],
+          photo:"img/labor-start.jpg", caption:"" },
+
+        { title:"Watch from a distance",
+          body:"Allow the ewe to progress on her own but watch from a distance for any dystocia signs.",
+          points:["Ideally, the ewe will lamb on her own and you\u2019ll watch her give birth before moving her to a clean jug once she has had her lambs.",
+                  {text:"If the ewe is not making progress or you notice a malpresentation (i.e. breech, so you see upside down feet), get the following supplies ready for intervention:",
+                   sub:["OB gloves","Lube","Lamb puller","Towels","Possibly a halter to hold the ewe"]}],
+          photo:"img/normal-presentation.jpg", caption:"" },
+
+        { title:"Intervention",
+          body:"Sometimes assistance is needed and we need to help deliver the lambs. To determine the best course of action we may need to get hands on the lamb(s) inside the ewe to determine positioning.",
+          points:["Place an OB glove on and lube onto your hand",
+                  "Shape it into a cone to slowly enter the birth canal if needed",
+                  "Try to use your hand to feel each lamb and visualize the positioning of each lamb so you can determine what to do next",
+                  "If we have not made additional progress within 30-60 minutes, it is time to call the veterinarian."],
+          tip:"It takes time and experience to fully feel comfortable intervening and determining a course of action. Do not feel discouraged if on your initial attempts under supervision, a TA or instructor has to step in to assist.",
+          photo:"", caption:"" },
+
+        { title:"Lambs are out!",
+          body:"",
+          points:["If you have not already done so, these ewes/lambs can be moved to a fresh clean jug and provided fresh water and feed.",
+                  "Observe the lambs/ewe and note anything abnormal",
+                  "Begin processing them i.e. eartags, weight, etc once they are in the jug"],
+          photo:"", caption:"" }
+      ]
+    }
+  ];
+
+  /* ==========================================================
+     ==================  END OF EDITS  ========================
+     ========================================================== */
+
+  /* ---------- small helpers ---------- */
+  function $(id){return document.getElementById(id);}
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+  function todayKey(d){ d=d||new Date(); return d.toLocaleDateString("en-CA"); }
+  function fmtTime(ts){ return new Date(ts).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"}); }
+  function fmtDate(k){ var p=String(k).split("-"); var d=new Date(+p[0],+p[1]-1,+p[2]);
+    return isNaN(d) ? String(k) : d.toLocaleDateString([], {weekday:"long", month:"long", day:"numeric", year:"numeric"}); }
+  function ordinal(n){ var s=["th","st","nd","rd"], v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); }
+  function showMsg(el,text,cls){ el.className="msg "+cls; el.textContent=text; }
+  function clearMsg(el){ el.className="msg"; el.textContent=""; }
+  function lsGet(k){ try{ return localStorage.getItem(k)||""; }catch(e){ return ""; } }
+  function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+
   function currentShiftId(){
-    var d=new Date();
-    var m=d.getHours()*60+d.getMinutes(); /* minutes since midnight */
+    var d=new Date(), m=d.getHours()*60+d.getMinutes();
     for(var i=0;i<SHIFTS.length;i++){
       var s=SHIFTS[i];
       if(s.from<s.to){ if(m>=s.from && m<s.to) return s.id; }
-      else{ if(m>=s.from || m<s.to) return s.id; } /* window wraps past midnight */
+      else{ if(m>=s.from || m<s.to) return s.id; }
     }
     return "s4am";
   }
-  function shiftName(id){for(var i=0;i<SHIFTS.length;i++) if(SHIFTS[i].id===id) return SHIFTS[i].name; return id;}
+  function shiftName(id){ for(var i=0;i<SHIFTS.length;i++) if(SHIFTS[i].id===id) return SHIFTS[i].name; return id; }
 
-  /* ---------- helpers ---------- */
-  function $(id){return document.getElementById(id);}
-  function todayKey(d){ d=d||new Date(); return d.toLocaleDateString("en-CA"); } /* YYYY-MM-DD local */
-  function fmtTime(ts){ return new Date(ts).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"}); }
-  function fmtDate(k){ var p=k.split("-"); var d=new Date(+p[0],+p[1]-1,+p[2]);
-    return d.toLocaleDateString([], {weekday:"long", month:"long", day:"numeric", year:"numeric"}); }
-  function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
-  function ordinal(n){
-    var s=["th","st","nd","rd"], v=n%100;
-    return n+(s[(v-20)%10]||s[v]||s[0]);
-  }
-  function showMsg(el,text,cls){ el.className="msg "+cls; el.textContent=text; }
-  function clearMsg(el){ el.className="msg"; el.textContent=""; }
-
-  /* ---------- backend: Google Apps Script → Google Sheet ---------- */
-  /* SETUP: paste your deployed Apps Script web-app URL and pick a passcode. */
-  var API_URL   = "https://script.google.com/macros/s/AKfycbyHrWY4qAnYyOomdjZrtPJETvkuZ83787JmHT0OHPEj1cuxLwgg7dK-BKUoqHlobFrXRA/exec";
-  var ADMIN_PASS= "MSUSheep"; /* must match ADMIN_PASS in the Apps Script */
-
-  /* Farm coordinates for the on-site check. Get exact values by right-clicking
-     the barn in Google Maps and copying the lat, lon pair that appears. */
-  var FARM_LAT  = 45.6662;   /* MAES Ft. Ellis barn latitude  */
-  var FARM_LON  = -110.9734; /* MAES Ft. Ellis barn longitude */
-  var RADIUS_M  = 250;       /* how close counts as "at the farm", in meters */
-
-  /* Straight-line distance between two coordinates, in meters */
+  /* ---------- location ---------- */
   function distanceM(lat1,lon1,lat2,lon2){
     var R=6371000, rad=Math.PI/180;
     var dLat=(lat2-lat1)*rad, dLon=(lon2-lon1)*rad;
@@ -316,8 +909,6 @@
         + Math.cos(lat1*rad)*Math.cos(lat2*rad)*Math.sin(dLon/2)*Math.sin(dLon/2);
     return Math.round(R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)));
   }
-
-  /* Ask the phone for its position; resolves to null if unavailable or refused */
   function getPosition(){
     return new Promise(function(resolve){
       if(!navigator.geolocation) return resolve(null);
@@ -326,37 +917,81 @@
       navigator.geolocation.getCurrentPosition(
         function(pos){
           if(done) return; done=true; clearTimeout(timer);
-          resolve({
-            lat: +pos.coords.latitude.toFixed(6),
-            lon: +pos.coords.longitude.toFixed(6),
-            acc: Math.round(pos.coords.accuracy)
-          });
+          resolve({ lat:+pos.coords.latitude.toFixed(6), lon:+pos.coords.longitude.toFixed(6),
+                    acc:Math.round(pos.coords.accuracy) });
         },
         function(){ if(!done){ done=true; clearTimeout(timer); resolve(null); } },
         {enableHighAccuracy:true, timeout:11000, maximumAge:60000}
       );
     });
   }
+  function geoFields(geo){
+    var d = geo ? distanceM(geo.lat, geo.lon, FARM_LAT, FARM_LON) : "";
+    return { lat: geo?geo.lat:"", lon: geo?geo.lon:"", acc: geo?geo.acc:"", dist: d,
+             atfarm: geo ? (d<=RADIUS_M ? "yes" : "no") : "unknown" };
+  }
 
-  var cache=null; /* last fetched entries */
-  function apiReady(){ return API_URL.indexOf("https://")===0; }
-  async function apiAll(){
-    var r=await fetch(API_URL+"?action=all");
+  /* ---------- screen wake lock ---------- */
+  var wakeLock=null, wakeWanted=true;
+  async function acquireWake(){
+    if(!wakeWanted || !("wakeLock" in navigator) || wakeLock) { paintLamp(); return; }
+    try{
+      wakeLock=await navigator.wakeLock.request("screen");
+      wakeLock.addEventListener("release", function(){ wakeLock=null; paintLamp(); });
+    }catch(e){ wakeLock=null; }
+    paintLamp();
+  }
+  function releaseWake(){
+    wakeWanted=false;
+    if(wakeLock){ wakeLock.release().catch(function(){}); wakeLock=null; }
+    paintLamp();
+  }
+  function paintLamp(){
+    var on = !!wakeLock;
+    $("lamp").className = "lamp"+(on?" on":"");
+    if(!("wakeLock" in navigator)){
+      $("lamp-text").textContent="This browser can't keep the screen awake";
+      $("btn-lamp").hidden=true; return;
+    }
+    $("lamp-text").textContent = wakeWanted
+      ? "Screen stays awake while this app is open"
+      : "Screen may sleep normally";
+    $("btn-lamp").textContent = wakeWanted ? "turn off" : "turn on";
+  }
+  $("btn-lamp").addEventListener("click", function(){
+    if(wakeWanted) releaseWake();
+    else { wakeWanted=true; acquireWake(); }
+  });
+  document.addEventListener("visibilitychange", function(){
+    if(wakeWanted && document.visibilityState==="visible" && !wakeLock) acquireWake();
+  });
+  document.addEventListener("click", function once(){ acquireWake(); }, {once:true});
+  acquireWake();
+
+  /* ---------- backend ---------- */
+  var DATA={entries:[],ewes:[],lambings:[],lambs:[],treatments:[],deaths:[],moves:[]};
+  function apiReady(){ return API_URL.indexOf("https://")===0 && API_URL.indexOf("PASTE_YOUR")<0; }
+  async function apiAll(force){
+    if(!apiReady()) throw new Error("API_URL is not set");
+    var r=await fetch(API_URL+"?action=all&t="+(force?Date.now():Math.floor(Date.now()/15000)));
     var j=await r.json();
     if(!j.ok) throw new Error(j.error||"fetch failed");
-    cache=j.entries||[];
-    cache.sort(function(a,b){return a.ts-b.ts;});
-    return cache;
+    DATA={
+      entries:   (j.entries||[]).sort(function(a,b){return a.ts-b.ts;}),
+      ewes:      j.ewes||[],
+      lambings:  (j.lambings||[]).sort(function(a,b){return a.ts-b.ts;}),
+      lambs:     j.lambs||[],
+      treatments:(j.treatments||[]).sort(function(a,b){return a.ts-b.ts;}),
+      deaths:    (j.deaths||[]).sort(function(a,b){return a.ts-b.ts;}),
+      moves:     (j.moves||[]).sort(function(a,b){return a.ts-b.ts;})
+    };
+    return DATA;
   }
   async function apiPost(payload){
     var r=await fetch(API_URL,{method:"POST",body:JSON.stringify(payload)});
     var j=await r.json();
     if(!j.ok) throw new Error(j.error||"request failed");
     return j;
-  }
-  async function getDay(dateKey){
-    var all=await apiAll();
-    return all.filter(function(e){return e.date===dateKey;});
   }
 
   /* ---------- clock ---------- */
@@ -366,60 +1001,112 @@
   }
   tick(); setInterval(tick, 30000);
 
-  /* ---------- student view ---------- */
-  var selectedShift=currentShiftId();
-  function renderChips(){
-    var box=$("chips"); box.innerHTML="";
-    SHIFTS.forEach(function(s){
+  /* ---------- chip group helper ---------- */
+  function chipGroup(boxId, items, initial, onPick){
+    var value=initial;
+    function paint(){
+      var box=$(boxId); box.innerHTML="";
+      items.forEach(function(it){
+        var b=document.createElement("button");
+        b.type="button";
+        b.className="chip"+(it.cls?" "+it.cls:"");
+        b.setAttribute("aria-pressed", it.value===value ? "true":"false");
+        b.innerHTML=esc(it.label)+(it.sub?'<span class="t">'+esc(it.sub)+"</span>":"");
+        b.addEventListener("click", function(){ value=it.value; paint(); if(onPick) onPick(value); });
+        box.appendChild(b);
+      });
+    }
+    paint();
+    return { get:function(){return value;}, set:function(v){ value=v; paint(); } };
+  }
+
+  /* ==========================================================
+     TABS
+     ========================================================== */
+  /* Tab order and labels — reorder these freely, the bar follows.
+     The first one is what students land on when the app opens. */
+  var TABS=[
+    {id:"checklist", label:"Checklist"},
+    {id:"checkin",   label:"Check In"},
+    {id:"lambing",   label:"New Lambs"},
+    {id:"treatment", label:"TRT/Loss"},
+    {id:"move",      label:"Move"},
+    {id:"report",    label:"Report"}
+  ];
+  var activeTab=TABS[0].id;
+  function paintTabs(){
+    var box=$("tabs"); box.innerHTML="";
+    TABS.forEach(function(t){
       var b=document.createElement("button");
-      b.type="button"; b.className="chip";
-      b.setAttribute("aria-pressed", s.id===selectedShift ? "true":"false");
-      b.innerHTML=esc(s.name)+'<span class="t">'+esc(s.t)+"</span>";
-      b.addEventListener("click", function(){ selectedShift=s.id; renderChips(); });
+      b.type="button"; b.className="tab"; b.setAttribute("role","tab");
+      b.setAttribute("aria-selected", t.id===activeTab ? "true":"false");
+      b.textContent=t.label;
+      b.addEventListener("click", function(){ goTab(t.id); });
       box.appendChild(b);
     });
   }
-  renderChips();
+  function goTab(id){
+    activeTab=id;
+    TABS.forEach(function(t){ $("pane-"+t.id).hidden = t.id!==id; });
+    paintTabs();
+    window.scrollTo(0,0);
+    if(id==="report") renderReport();
+    if(id==="lambing") ensureEwes().then(function(){ refreshThen(paintPens); });
+    if(id==="move")    ensureEwes().then(function(){
+      renderMoveList(); renderBoard();
+      refreshThen(function(){ renderMoveList(); renderBoard(); });
+    });
+  }
+  /* pull fresh data, then repaint — a stale board is worse than a slow one */
+  function refreshThen(fn){
+    if(!apiReady()) return;
+    apiAll(true).then(fn).catch(function(){});
+  }
+  paintTabs();
+
+  /* ==========================================================
+     TAB 1 — CHECK IN
+     ========================================================== */
+  var shiftPick = chipGroup("chips",
+    SHIFTS.map(function(s){ return {value:s.id, label:s.name, sub:s.t.replace("starts ","")}; }),
+    currentShiftId());
+
+  $("in-name").value = lsGet("lamb_name");
 
   async function renderToday(){
     var ul=$("today-ledger");
-    if(!apiReady()){ ul.innerHTML='<li class="empty">Setup needed: paste your Apps Script URL into API_URL at the top of the script.</li>'; return; }
-    try{
-      var list=await getDay(todayKey());
-    }catch(e){ ul.innerHTML='<li class="empty">Couldn\'t reach the attendance sheet — check your connection.</li>'; return; }
+    if(!apiReady()){ ul.innerHTML='<li class="empty">Setup needed: paste your Apps Script URL into API_URL near the top of the script.</li>'; return; }
+    var list;
+    try{ await apiAll(); list=DATA.entries.filter(function(e){return e.date===todayKey();}); }
+    catch(e){ ul.innerHTML='<li class="empty">Couldn\'t reach the sheet — check your connection.</li>'; return; }
     if(!list.length){ ul.innerHTML='<li class="empty">No one has checked in yet today.</li>'; return; }
     ul.innerHTML=list.map(function(e){
-      return '<li><span class="lt">'+esc(fmtTime(e.ts))+'</span><span>'+esc(e.name)+'</span><span class="ls">'+esc(shiftName(e.shift))+"</span></li>";
+      return '<li><span class="lt">'+esc(fmtTime(e.ts))+'</span><span>'+esc(e.name)+
+             '</span><span class="ls">'+esc(shiftName(e.shift))+"</span></li>";
     }).join("");
   }
-  renderToday();
 
   $("btn-checkin").addEventListener("click", async function(){
     var msg=$("student-msg"); clearMsg(msg);
     var name=$("in-name").value.trim();
     if(name.length<2){ showMsg(msg,"Enter your full name so the record matches the shift schedule.","err"); $("in-name").focus(); return; }
+    lsSet("lamb_name", name);
+    if(!$("in-recorder").value)  $("in-recorder").value  = name;
+    if(!$("in-trecorder").value) $("in-trecorder").value = name;
 
     var btn=$("btn-checkin"); btn.disabled=true; btn.textContent="Getting location…";
-    var geo=await getPosition();
+    var g=geoFields(await getPosition());
     btn.textContent="Recording…";
     var now=new Date();
     var entry={
       action:"checkin",
       uid: now.getTime().toString(36)+"-"+Math.random().toString(36).slice(2,8),
-      name: name,
-      shift: selectedShift,
-      ts: now.getTime(),
-      iso: now.toISOString(),
-      time: fmtTime(now.getTime()),
-      date: todayKey(now),
-      lat: geo? geo.lat : "",
-      lon: geo? geo.lon : "",
-      acc: geo? geo.acc : "",
-      dist: geo? distanceM(geo.lat, geo.lon, FARM_LAT, FARM_LON) : "",
-      atfarm: geo ? (distanceM(geo.lat, geo.lon, FARM_LAT, FARM_LON) <= RADIUS_M ? "yes" : "no") : "unknown"
+      name:name, shift:shiftPick.get(),
+      ts:now.getTime(), iso:now.toISOString(),
+      time:fmtTime(now.getTime()), date:todayKey(now),
+      lat:g.lat, lon:g.lon, acc:g.acc, dist:g.dist, atfarm:g.atfarm
     };
     try{
-      if(!apiReady()) throw new Error("no api");
       var res=await apiPost(entry);
       var n=res.count||1;
       $("tag-num").textContent=ordinal(n);
@@ -427,8 +1114,8 @@
       $("tag-when").textContent=fmtDate(entry.date).replace(/^[A-Za-z]+, /,"")+" · "+fmtTime(entry.ts);
       $("tag-shift").textContent=shiftName(entry.shift)+" shift";
       var geoNote = entry.atfarm==="yes" ? "Location confirmed at the farm."
-                  : entry.atfarm==="no"  ? "Recorded, but your phone placed you away from Ft. Ellis — Please reach out to your TAs/instructors"
-                  : "Recorded without location — your TAs/instructors may follow up.";
+                  : entry.atfarm==="no"  ? "Recorded, but your phone placed you away from the barn — mention it to your shift lead."
+                  : "Recorded without location — your instructor may follow up.";
       $("tagcap").textContent = (n===1 ? "First shift logged. " : "That's "+n+" shifts logged. ") + geoNote;
       $("tagwrap").classList.add("show");
       $("tagwrap").scrollIntoView({behavior:"smooth", block:"center"});
@@ -439,101 +1126,1150 @@
     btn.disabled=false; btn.textContent="Check in now";
   });
 
-  /* ---------- view switching ---------- */
-  function show(view){
-    $("view-student").hidden = view!=="student";
-    $("view-admin").hidden   = view!=="admin";
+  /* ==========================================================
+     SCANNER (lifted from the TSU Pairing app)
+     ========================================================== */
+  var stream=null, scanLoopId=null, detector=null, zxingReader=null, scanTarget=null;
+
+  function openScanner(inputId, label){
+    scanTarget=inputId;
+    $("scanlabel").textContent=label||"Scan barcode";
+    $("scrim").classList.add("show");
+    startCamera();
+  }
+  function closeScanner(){
+    stopCamera();
+    $("scrim").classList.remove("show");
+    scanTarget=null;
+  }
+  async function startCamera(){
+    var status=$("scanstatus");
+    status.textContent="Starting camera…";
+    try{
+      stream=await navigator.mediaDevices.getUserMedia({
+        video:{facingMode:{ideal:"environment"}, width:{ideal:1920}, height:{ideal:1080}}, audio:false
+      });
+      var v=$("video"); v.srcObject=stream; await v.play();
+      if("BarcodeDetector" in window){
+        try{
+          var fmts=await window.BarcodeDetector.getSupportedFormats();
+          var want=["data_matrix","qr_code","code_128"].filter(function(f){return fmts.indexOf(f)>=0;});
+          if(want.length) detector=new window.BarcodeDetector({formats:want});
+        }catch(e){ detector=null; }
+      }
+      if(detector){ status.textContent="Hold the barcode inside the frame"; nativeLoop(); }
+      else{
+        status.textContent="Loading decoder…";
+        await loadZXing();
+        status.textContent="Hold the barcode inside the frame";
+        zxingLoop();
+      }
+    }catch(err){
+      status.textContent="Camera unavailable — use “Type it instead”. ("+((err&&err.name)||"error")+")";
+    }
+  }
+  function stopCamera(){
+    if(scanLoopId){ cancelAnimationFrame(scanLoopId); scanLoopId=null; }
+    if(zxingReader){ try{ zxingReader.reset(); }catch(e){} zxingReader=null; }
+    if(stream){ stream.getTracks().forEach(function(t){t.stop();}); stream=null; }
+  }
+  function nativeLoop(){
+    var v=$("video");
+    var step=async function(){
+      if(!stream) return;
+      try{
+        var codes=await detector.detect(v);
+        if(codes && codes.length){ onDecoded(codes[0].rawValue); return; }
+      }catch(e){}
+      scanLoopId=requestAnimationFrame(step);
+    };
+    scanLoopId=requestAnimationFrame(step);
+  }
+  function loadZXing(){
+    return new Promise(function(resolve,reject){
+      if(window.ZXing) return resolve();
+      var s=document.createElement("script");
+      s.src="https://cdnjs.cloudflare.com/ajax/libs/zxing-library/0.21.3/zxing-library.min.js";
+      s.integrity="sha384-BzBxP10ZE72aitqj5UMmUsbKFliP/DZqA8Wq+BNNhlIJDGoEd1tpkMYXOg9+n6sB";
+      s.crossOrigin="anonymous";
+      s.onload=resolve;
+      s.onerror=function(){ reject(new Error("decoder load failed")); };
+      document.head.appendChild(s);
+    }).catch(function(){ $("scanstatus").textContent="Decoder didn't load — type the ID instead."; });
+  }
+  function zxingLoop(){
+    if(!window.ZXing || !stream) return;
+    try{
+      var hints=new Map();
+      hints.set(window.ZXing.DecodeHintType.POSSIBLE_FORMATS,
+        [window.ZXing.BarcodeFormat.DATA_MATRIX, window.ZXing.BarcodeFormat.QR_CODE, window.ZXing.BarcodeFormat.CODE_128]);
+      hints.set(window.ZXing.DecodeHintType.TRY_HARDER, true);
+      zxingReader=new window.ZXing.BrowserMultiFormatReader(hints, 200);
+      zxingReader.decodeFromStream(stream, $("video"), function(result){
+        if(result) onDecoded(result.getText());
+      });
+    }catch(e){ $("scanstatus").textContent="Decoder error — type the ID instead."; }
+  }
+  function onDecoded(text){
+    var val=String(text).trim();
+    if(navigator.vibrate) navigator.vibrate(80);
+    var el=scanTarget? $(scanTarget) : null;
+    closeScanner();
+    if(el){ el.value=val; el.dispatchEvent(new Event("input",{bubbles:true})); }
+  }
+  $("btn-scan-cancel").addEventListener("click", closeScanner);
+  $("btn-scan-manual").addEventListener("click", function(){
+    var id=scanTarget;
+    closeScanner();
+    if(id){ var el=$(id); if(el){ el.focus(); el.select && el.select(); } }
+  });
+  window.addEventListener("pagehide", stopCamera);
+
+  /* ==========================================================
+     TAB 2 — RECORD LAMBING
+     ========================================================== */
+  var chosenEwe=null, ewesLoaded=false;
+
+  /* ---------- where is every ewe right now? ----------
+     Her lambing jug is the starting point; each logged move overrides it.
+     Returns { eweId: {loc, lambs, since, moved} } for ewes that have lambed. */
+  function whereIsEveryone(){
+    var at={};
+
+    /* Lamb rows are the source of truth for how many she still has: a lamb
+       marked dead (stillborn) or died (later) drops out automatically, so a
+       death recorded after a move can't be masked by a stale hand-typed count. */
+    var liveByEwe={};
+    DATA.lambs.forEach(function(b){
+      var s=String(b.status).toLowerCase();
+      if(s==="dead" || s==="died") return;
+      var k=String(b.ewe_id).toLowerCase();
+      liveByEwe[k]=(liveByEwe[k]||0)+1;
+    });
+
+    DATA.lambings.forEach(function(l){
+      var id=String(l.ewe_id), k=id.toLowerCase();
+      at[k]={ ewe:id, loc:l.pen||"—",
+              lambs: (k in liveByEwe) ? liveByEwe[k] : (Number(l.born_alive)||0),
+              since:l.date+" "+l.time, ts:l.ts, moved:false };
+    });
+
+    /* moves are sorted oldest-first, so the last one for a ewe wins */
+    DATA.moves.forEach(function(m){
+      var k=String(m.ewe_id).toLowerCase();
+      if(!at[k]){  /* moved without a lambing record on file */
+        at[k]={ ewe:String(m.ewe_id), lambs:(k in liveByEwe)?liveByEwe[k]:(Number(m.lamb_count)||0) };
+      }
+      at[k].loc=m.to_location;
+      at[k].since=m.date+" "+m.time;
+      at[k].ts=m.ts;
+      at[k].moved=true;
+    });
+    return at;
+  }
+  function jugsInUse(){
+    return JUGS.filter(function(j){ return occupantsOf(j).length; }).length;
+  }
+  function occupantsOf(loc){
+    var at=whereIsEveryone(), out=[];
+    Object.keys(at).forEach(function(k){
+      if(String(at[k].loc).toLowerCase()===String(loc).toLowerCase()) out.push(at[k]);
+    });
+    return out.sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
+  }
+
+  /* jug chips on the lambing form, with occupied ones flagged */
+  var penPick = chipGroup("pen-chips", JUGS.map(function(p){ return {value:p, label:p}; }), JUGS[0]);
+  function paintPens(){
+    var keep=penPick.get();
+    var free=null;
+    var items=JUGS.map(function(j){
+      var n=occupantsOf(j).length;
+      if(!n && free===null) free=j;
+      return {value:j, label:j, sub:n? "in use":"", cls:n?"taken":""};
+    });
+    penPick=chipGroup("pen-chips", items, keep);
+    /* nudge toward the first empty jug, but never override a deliberate pick */
+    if(occupantsOf(keep).length && free) penPick.set(free);
+    var used=JUGS.filter(function(j){ return occupantsOf(j).length; }).length;
+    $("jug-hint").textContent = used
+      ? used+" of "+JUGS.length+" jugs in use. Ones already holding a ewe are marked."
+      : "All "+JUGS.length+" jugs are empty.";
+  }
+
+  var followPick = chipGroup("followup-chips",
+    [{value:"no",label:"No"},{value:"yes",label:"Yes — flag it",cls:"dead"}], "no",
+    function(v){ $("in-followup-note").hidden = (v!=="yes"); });
+
+  async function ensureEwes(){
+    if(ewesLoaded) return;
+    var hint=$("ewe-hint");
+    if(!apiReady()){ hint.textContent="Setup needed: paste your Apps Script URL into API_URL."; return; }
+    try{ await apiAll(); ewesLoaded=true; }
+    catch(e){ hint.textContent="Couldn't load the ewe list — you can still type an ID below."; return; }
+    hint.textContent = DATA.ewes.length
+      ? DATA.ewes.length+" ewes on the roster. Not on the list? Type her ID and tap “Use this ID”."
+      : "No ewes on the roster yet — add them to the Ewes tab of the Sheet, or just type an ID.";
+    renderEweResults();
+  }
+  function lambedSet(){
+    var s={};
+    DATA.lambings.forEach(function(l){ s[String(l.ewe_id).toLowerCase()]=l.date; });
+    return s;
+  }
+  function renderEweResults(){
+    var q=$("ewe-search").value.trim().toLowerCase();
+    var box=$("ewe-results");
+    if(chosenEwe){ box.innerHTML=""; return; }
+    var done=lambedSet();
+    var list=DATA.ewes.filter(function(e){
+      return !q || String(e.ewe_id).toLowerCase().indexOf(q)>=0;
+    }).slice(0,40);
+
+    var html=list.map(function(e){
+      var key=String(e.ewe_id).toLowerCase();
+      var meta = done[key] ? '<span class="meta done">lambed '+esc(done[key])+"</span>"
+               : (e.due_date ? '<span class="meta">due '+esc(e.due_date)+"</span>" : "");
+      return '<button type="button" class="ewe-opt" data-ewe="'+esc(e.ewe_id)+'">'+esc(e.ewe_id)+meta+"</button>";
+    }).join("");
+
+    if(q && !list.some(function(e){ return String(e.ewe_id).toLowerCase()===q; })){
+      html += '<button type="button" class="ewe-opt" data-ewe="'+esc($("ewe-search").value.trim())+'">'+
+              esc($("ewe-search").value.trim())+'<span class="meta">use this ID</span></button>';
+    }
+    box.innerHTML=html;
+    box.querySelectorAll("[data-ewe]").forEach(function(b){
+      b.addEventListener("click", function(){ pickEwe(b.getAttribute("data-ewe")); });
+    });
+  }
+  function pickEwe(id){
+    chosenEwe=id;
+    $("ewe-results").innerHTML="";
+    $("ewe-search").value="";
+    var done=lambedSet()[String(id).toLowerCase()];
+    $("ewe-chosen").innerHTML='<div class="chosen"><span>'+esc(id)+'</span>'+
+      (done?'<span style="font-weight:600;font-size:12px">already lambed '+esc(done)+"</span>":"")+
+      '<button class="x" id="btn-clear-ewe" aria-label="Clear selection">&times;</button></div>';
+    $("btn-clear-ewe").addEventListener("click", function(){
+      chosenEwe=null; $("ewe-chosen").innerHTML=""; renderEweResults(); $("ewe-search").focus();
+    });
+  }
+  $("ewe-search").addEventListener("input", renderEweResults);
+  $("ewe-search").addEventListener("focus", renderEweResults);
+
+  /* --- lamb cards --- */
+  var lambSeq=0, lambPicks={};
+  function addLamb(){
+    lambSeq++;
+    var n=lambSeq;
+    var wrap=document.createElement("div");
+    wrap.className="lamb"; wrap.id="lamb-"+n;
+    wrap.innerHTML=
+      '<div class="lamb-head"><span class="n">Lamb '+n+'</span>'+
+        '<button type="button" class="rm" data-rm="'+n+'">Remove</button></div>'+
+      '<label class="first" for="lamb-id-'+n+'">Lamb ID</label>'+
+      '<div class="scanrow"><input class="field" id="lamb-id-'+n+'" autocomplete="off" placeholder="Ear tag">'+
+        '<button type="button" class="scanbtn" data-scan="lamb-id-'+n+'" aria-label="Scan ear tag">▣</button></div>'+
+      '<label for="lamb-tsu-'+n+'">TSU ID</label>'+
+      '<div class="scanrow"><input class="field" id="lamb-tsu-'+n+'" autocomplete="off" placeholder="TSU barcode">'+
+        '<button type="button" class="scanbtn" data-scan="lamb-tsu-'+n+'" aria-label="Scan TSU barcode">▣</button></div>'+
+      '<div class="two">'+
+        '<div><label class="first" id="sex-label-'+n+'">Sex</label><div class="chips" role="group" aria-labelledby="sex-label-'+n+'" id="sex-chips-'+n+'"></div></div>'+
+        '<div><label class="first" for="lamb-bwt-'+n+'">Birth weight (lb)</label>'+
+          '<input class="field" id="lamb-bwt-'+n+'" inputmode="decimal" placeholder="e.g. 9.4"></div>'+
+      '</div>'+
+      '<label id="status-label-'+n+'">Status</label>'+
+      '<div class="chips" role="group" aria-labelledby="status-label-'+n+'" id="status-chips-'+n+'"></div>'+
+      '<label for="lamb-notes-'+n+'">Notes</label>'+
+      '<input class="field" id="lamb-notes-'+n+'" autocomplete="off" placeholder="optional">';
+    $("lamb-list").appendChild(wrap);
+
+    lambPicks[n]={
+      sex: chipGroup("sex-chips-"+n, [{value:"F",label:"Ewe"},{value:"M",label:"Ram"}], ""),
+      status: chipGroup("status-chips-"+n,
+        [{value:"alive",label:"Alive"},{value:"dead",label:"Born dead",cls:"dead"}], "alive",
+        function(v){ $("lamb-"+n).className = "lamb"+(v==="dead"?" dead":""); })
+    };
+
+    wrap.querySelectorAll("[data-scan]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var t=b.getAttribute("data-scan");
+        openScanner(t, t.indexOf("tsu")>=0 ? "Scan the TSU barcode" : "Scan the lamb's ear tag");
+      });
+    });
+    wrap.querySelector("[data-rm]").addEventListener("click", function(){
+      if($("lamb-list").children.length<=1){ window.alert("A lambing record needs at least one lamb."); return; }
+      wrap.remove(); delete lambPicks[n]; renumberLambs();
+    });
+  }
+  function renumberLambs(){
+    var i=0;
+    $("lamb-list").querySelectorAll(".lamb").forEach(function(el){
+      i++; el.querySelector(".n").textContent="Lamb "+i;
+    });
+  }
+  function collectLambs(){
+    var out=[];
+    $("lamb-list").querySelectorAll(".lamb").forEach(function(el){
+      var n=el.id.replace("lamb-","");
+      out.push({
+        lamb_id:  $("lamb-id-"+n).value.trim(),
+        tsu_id:   $("lamb-tsu-"+n).value.trim(),
+        sex:      lambPicks[n].sex.get(),
+        birth_wt: $("lamb-bwt-"+n).value.trim(),
+        status:   lambPicks[n].status.get(),
+        notes:    $("lamb-notes-"+n).value.trim()
+      });
+    });
+    return out;
+  }
+  $("btn-add-lamb").addEventListener("click", addLamb);
+  addLamb();
+
+  $("in-recorder").value = lsGet("lamb_name");
+
+  $("btn-save-lambing").addEventListener("click", async function(){
+    var msg=$("lambing-msg"); clearMsg(msg);
+    if(!chosenEwe){ showMsg(msg,"Pick the ewe that lambed before saving.","err"); $("ewe-search").focus(); return; }
+    var who=$("in-recorder").value.trim();
+    if(who.length<2){ showMsg(msg,"Add your name so the record shows who took it.","err"); $("in-recorder").focus(); return; }
+
+    var lambs=collectLambs();
+    var live=lambs.filter(function(l){return l.status!=="dead";});
+    var missing=live.filter(function(l){return !l.lamb_id;}).length;
+    if(missing && !window.confirm(missing+" live lamb"+(missing===1?" has":"s have")+" no ear tag ID. Save anyway?")) return;
+
+    lsSet("lamb_name", who);
+    var btn=$("btn-save-lambing"); btn.disabled=true; btn.textContent="Getting location…";
+    var g=geoFields(await getPosition());
+    btn.textContent="Saving…";
+    var now=new Date();
+    try{
+      var res=await apiPost({
+        action:"lambing",
+        lambing_id:"L"+now.getTime().toString(36)+"-"+Math.random().toString(36).slice(2,6),
+        date:todayKey(now), time:fmtTime(now.getTime()), iso:now.toISOString(),
+        recorded_by:who, ewe_id:chosenEwe, pen:penPick.get(),
+        assistance:$("in-assist").value,
+        followup:followPick.get(), followup_note:$("in-followup-note").value.trim(),
+        notes:$("in-lamb-notes").value.trim(),
+        lambs:lambs,
+        lat:g.lat, lon:g.lon, dist:g.dist, atfarm:g.atfarm
+      });
+      showMsg(msg, "Saved — "+chosenEwe+": "+res.born_total+" lamb"+(res.born_total===1?"":"s")+
+        " ("+res.born_alive+" alive"+(res.born_dead?", "+res.born_dead+" dead":"")+") in "+penPick.get()+".", "ok");
+      resetLambingForm();
+      refreshThen(paintPens);
+    }catch(e){
+      showMsg(msg,"That didn't save — check your connection and tap Save again. Nothing was lost.","err");
+    }
+    btn.disabled=false; btn.textContent="Save lambing record";
+  });
+
+  function resetLambingForm(){
+    chosenEwe=null;
+    $("ewe-chosen").innerHTML=""; $("ewe-search").value="";
+    $("lamb-list").innerHTML=""; lambPicks={}; lambSeq=0; addLamb();
+    $("in-lamb-notes").value=""; $("in-followup-note").value="";
+    followPick.set("no"); $("in-followup-note").hidden=true;
+    $("in-assist").value="None";
+  }
+
+  /* ==========================================================
+     TAB 3 — MOVE A EWE AND HER LAMBS
+     ========================================================== */
+  var movingEwe=null;
+  var destPick = chipGroup("dest-chips", PLACES.map(function(p){ return {value:p,label:p}; }), OTHER_PLACES[0]||JUGS[0]);
+
+  $("in-mrecorder").value = lsGet("lamb_name");
+
+  function renderMoveList(){
+    var q=$("move-search").value.trim().toLowerCase();
+    var box=$("move-results"), hint=$("move-hint");
+    if(movingEwe){ box.innerHTML=""; return; }
+    var at=whereIsEveryone();
+    var keys=Object.keys(at);
+    if(!keys.length){
+      box.innerHTML="";
+      hint.textContent="No ewes have lambed yet — once one is recorded, she can be moved from here.";
+      return;
+    }
+    hint.textContent=keys.length+" ewe"+(keys.length===1?"":"s")+" on the board. Tap one to move her.";
+    var list=keys.map(function(k){ return at[k]; })
+                 .filter(function(e){ return !q || e.ewe.toLowerCase().indexOf(q)>=0; })
+                 .sort(function(a,b){ return String(a.loc).localeCompare(String(b.loc), undefined, {numeric:true}); })
+                 .slice(0,40);
+    box.innerHTML=list.map(function(e){
+      return '<button type="button" class="ewe-opt" data-move="'+esc(e.ewe)+'">'+esc(e.ewe)+
+             '<span class="meta">'+esc(e.loc)+" · "+e.lambs+" lamb"+(e.lambs===1?"":"s")+"</span></button>";
+    }).join("");
+    box.querySelectorAll("[data-move]").forEach(function(b){
+      b.addEventListener("click", function(){ pickMove(b.getAttribute("data-move")); });
+    });
+  }
+  function pickMove(id){
+    movingEwe=id;
+    var e=whereIsEveryone()[String(id).toLowerCase()]||{loc:"—",lambs:0};
+    $("move-results").innerHTML=""; $("move-search").value="";
+    $("move-chosen").innerHTML='<div class="chosen"><span>'+esc(id)+
+      '</span><span style="font-weight:600;font-size:12px">now in '+esc(e.loc)+"</span>"+
+      '<button class="x" id="btn-clear-move" aria-label="Clear selection">&times;</button></div>';
+    $("btn-clear-move").addEventListener("click", function(){
+      movingEwe=null; $("move-chosen").innerHTML=""; $("move-details").hidden=true; renderMoveList();
+    });
+    $("in-lambcount").value=e.lambs;
+
+    /* suggest the next step along jug -> mixing pen -> general population */
+    var dflt=nextPlaceAfter(e.loc);
+    if(String(dflt).toLowerCase()===String(e.loc).toLowerCase()){
+      dflt=JUGS.filter(function(j){ return !occupantsOf(j).length; })[0]||JUGS[0];
+    }
+    destPick=chipGroup("dest-chips",
+      PLACES.map(function(p){
+        var here=String(p).toLowerCase()===String(e.loc).toLowerCase();
+        var n=occupantsOf(p).length;
+        var sub="";
+        if(here) sub="she's here";
+        else if(p===dflt) sub="next step";
+        else if(JUGS.indexOf(p)>=0 && n) sub="in use";
+        else if(OTHER_PLACES.indexOf(p)>=0) sub=n+" ewe"+(n===1?"":"s");
+        return {value:p, label:p, sub:sub,
+                cls: here ? "taken" : (JUGS.indexOf(p)>=0 && n ? "taken" : "")};
+      }), dflt);
+    $("dest-hint").textContent = "Usual path: jug → "+MIXING[0].replace(/ 1$/,"")+" → "+
+      (GENERAL[0]||"")+". “Next step” is pre-selected — tap any other pen to override it.";
+    $("move-details").hidden=false;
+    clearMsg($("move-msg"));
+    $("move-details").scrollIntoView({behavior:"smooth", block:"start"});
+  }
+  $("move-search").addEventListener("input", renderMoveList);
+  $("move-search").addEventListener("focus", renderMoveList);
+
+  $("btn-save-move").addEventListener("click", async function(){
+    var msg=$("move-msg"); clearMsg(msg);
+    if(!movingEwe){ showMsg(msg,"Pick the ewe that's moving.","err"); return; }
+    var who=$("in-mrecorder").value.trim();
+    if(who.length<2){ showMsg(msg,"Add your name so the record shows who moved her.","err"); $("in-mrecorder").focus(); return; }
+    var at=whereIsEveryone()[String(movingEwe).toLowerCase()]||{loc:""};
+    var dest=destPick.get();
+    if(String(dest).toLowerCase()===String(at.loc).toLowerCase()){
+      showMsg(msg,movingEwe+" is already in "+dest+". Pick a different destination.","err"); return;
+    }
+    var others=occupantsOf(dest);
+    if(JUGS.indexOf(dest)>=0 && others.length &&
+       !window.confirm(dest+" already holds "+others.map(function(o){return o.ewe;}).join(", ")+
+                       ". Move "+movingEwe+" in anyway?")) return;
+    lsSet("lamb_name", who);
+
+    var btn=$("btn-save-move"); btn.disabled=true; btn.textContent="Saving…";
+    var now=new Date();
+    try{
+      var res=await apiPost({
+        action:"move",
+        move_id:"M"+now.getTime().toString(36)+"-"+Math.random().toString(36).slice(2,6),
+        date:todayKey(now), time:fmtTime(now.getTime()), iso:now.toISOString(),
+        recorded_by:who, ewe_id:movingEwe, to_location:dest,
+        lamb_count:$("in-lambcount").value.trim(), notes:$("in-mnotes").value.trim()
+      });
+      showMsg(msg,"Moved — "+movingEwe+": "+(res.from_location||"?")+" → "+res.to_location+".","ok");
+      movingEwe=null; $("move-chosen").innerHTML=""; $("move-details").hidden=true;
+      $("in-mnotes").value="";
+      await apiAll(true);
+      renderMoveList(); renderBoard(); paintPens();
+    }catch(e){
+      showMsg(msg, /already in/.test(String(e.message)) ? "She's already there — the board may have been out of date. Pull down to refresh."
+                 : "That didn't save — check your connection and tap Record again.","err");
+    }
+    btn.disabled=false; btn.textContent="Record the move";
+  });
+
+  /* ---------- the occupancy board ---------- */
+  function renderBoard(){
+    var at=whereIsEveryone();
+    var n=Object.keys(at).length;
+    if(!n){ $("board-status").textContent="Nothing to show until the first lambing is recorded."; $("board").innerHTML=""; return; }
+    var inJugs=JUGS.filter(function(j){ return occupantsOf(j).length; }).length;
+    $("board-status").textContent=inJugs+" of "+JUGS.length+" jugs in use · "+n+" ewe"+(n===1?"":"s")+" on the board.";
+
+    var html='<div class="jugs">'+JUGS.map(function(j){
+      var occ=occupantsOf(j);
+      if(!occ.length) return '<div class="jug empty"><div class="jn">'+esc(j)+'</div><div class="je">empty</div></div>';
+      return '<div class="jug full"><div class="jn">'+esc(j)+"</div>"+
+        occ.map(function(o){
+          return '<div class="je">'+esc(o.ewe)+'</div><div class="jl">'+o.lambs+" lamb"+(o.lambs===1?"":"s")+
+                 '</div><div class="jd">'+esc(String(o.since).slice(5))+"</div>";
+        }).join("")+"</div>";
+    }).join("")+"</div>";
+
+    OTHER_PLACES.forEach(function(place){
+      var occ=occupantsOf(place);
+      var kids=occ.reduce(function(a,o){return a+o.lambs;},0);
+      html+='<div class="grouphead">'+esc(place)+" · "+occ.length+" ewe"+(occ.length===1?"":"s")+
+            " · "+kids+" lamb"+(kids===1?"":"s")+"</div>";
+      if(!occ.length){ html+='<p class="empty">Nobody here yet.</p>'; return; }
+      /* general population fills up over the season — show the recent arrivals
+         and keep the rest one tap away rather than a wall of names */
+      var CAP=12, shown=occ.slice(0,CAP), rest=occ.length-CAP;
+      html+='<ul class="mixlist">'+shown.map(function(o){
+              return "<li><b>"+esc(o.ewe)+"</b><span>"+o.lambs+" lamb"+(o.lambs===1?"":"s")+
+                     '</span><span class="ml">since '+esc(String(o.since).slice(5))+"</span></li>";
+            }).join("")+"</ul>";
+      if(rest>0){
+        html+='<details style="margin-top:6px"><summary class="hint" style="cursor:pointer">'+
+              "Show "+rest+" more in "+esc(place)+'</summary><ul class="mixlist">'+
+              occ.slice(CAP).map(function(o){
+                return "<li><b>"+esc(o.ewe)+"</b><span>"+o.lambs+" lamb"+(o.lambs===1?"":"s")+
+                       '</span><span class="ml">since '+esc(String(o.since).slice(5))+"</span></li>";
+              }).join("")+"</ul></details>";
+      }
+    });
+
+    /* anywhere someone was moved to that isn't a known place */
+    var known={}; PLACES.forEach(function(p){ known[p.toLowerCase()]=1; });
+    var strays={};
+    Object.keys(at).forEach(function(k){
+      var loc=String(at[k].loc||"");
+      if(loc && !known[loc.toLowerCase()]) (strays[loc]=strays[loc]||[]).push(at[k]);
+    });
+    Object.keys(strays).forEach(function(loc){
+      html+='<div class="grouphead">'+esc(loc)+" · "+strays[loc].length+" ewe"+(strays[loc].length===1?"":"s")+"</div>";
+      html+='<ul class="mixlist">'+strays[loc].map(function(o){
+        return "<li><b>"+esc(o.ewe)+"</b><span>"+o.lambs+" lamb"+(o.lambs===1?"":"s")+"</span></li>";
+      }).join("")+"</ul>";
+    });
+
+    $("board").innerHTML=html;
+  }
+
+  /* ==========================================================
+     TAB 4 — TREATMENT
+     ========================================================== */
+  var atypePick  = chipGroup("atype-chips", [{value:"lamb",label:"Lamb"},{value:"ewe",label:"Ewe"}], "lamb");
+  var tfollowPick= chipGroup("tfollow-chips",
+    [{value:"no",label:"No"},{value:"yes",label:"Yes — flag it",cls:"dead"}], "no");
+
+  $("btn-scan-animal").addEventListener("click", function(){ openScanner("in-animal","Scan the animal's ear tag"); });
+  $("in-trecorder").value = lsGet("lamb_name");
+
+  $("btn-save-treatment").addEventListener("click", async function(){
+    var msg=$("treatment-msg"); clearMsg(msg);
+    var animal=$("in-animal").value.trim();
+    var what=$("in-treatment").value.trim();
+    var who=$("in-trecorder").value.trim();
+    if(!animal){ showMsg(msg,"Enter or scan the animal's ID.","err"); $("in-animal").focus(); return; }
+    if(!what){ showMsg(msg,"Say what was given.","err"); $("in-treatment").focus(); return; }
+    if(who.length<2){ showMsg(msg,"Add your name so the record shows who gave it.","err"); $("in-trecorder").focus(); return; }
+    lsSet("lamb_name", who);
+
+    var btn=$("btn-save-treatment"); btn.disabled=true; btn.textContent="Saving…";
+    var now=new Date();
+    try{
+      await apiPost({
+        action:"treatment",
+        treatment_id:"T"+now.getTime().toString(36)+"-"+Math.random().toString(36).slice(2,6),
+        date:todayKey(now), time:fmtTime(now.getTime()), iso:now.toISOString(),
+        recorded_by:who, animal_type:atypePick.get(), animal_id:animal,
+        treatment:what, dose:$("in-dose").value.trim(), route:$("in-route").value.trim(),
+        reason:$("in-reason").value.trim(), followup:tfollowPick.get(),
+        notes:$("in-tnotes").value.trim()
+      });
+      showMsg(msg,"Saved — "+what+" for "+animal+".","ok");
+      ["in-animal","in-treatment","in-dose","in-route","in-reason","in-tnotes"].forEach(function(id){ $(id).value=""; });
+      tfollowPick.set("no");
+      apiAll(true).catch(function(){});
+    }catch(e){
+      showMsg(msg,"That didn't save — check your connection and tap Save again.","err");
+    }
+    btn.disabled=false; btn.textContent="Save treatment";
+  });
+
+  /* ---------- treatment vs death mode ---------- */
+  chipGroup("mode-chips",
+    [{value:"treat",label:"Treatment"},{value:"death",label:"Death",cls:"dead"}], "treat",
+    function(v){
+      $("treat-form").hidden = v!=="treat";
+      $("death-form").hidden = v!=="death";
+      if(v==="death" && !$("in-dfound").value) $("in-dfound").value=todayKey();
+    });
+
+  /* ==========================================================
+     DEATH / NEONATAL LOSS
+     ========================================================== */
+  var dtypePick    = chipGroup("dtype-chips", [{value:"lamb",label:"Lamb"},{value:"ewe",label:"Ewe"}], "lamb",
+                       function(){ lookupAge(); });
+  var necropsyPick = chipGroup("necropsy-chips", [{value:"no",label:"No"},{value:"yes",label:"Yes"}], "no");
+  chipGroup("cause-chips", CAUSES.map(function(c){ return {value:c,label:c}; }), "",
+    function(v){ $("in-cause").value=v; });
+
+  $("in-dfound").value = todayKey();
+  $("in-drecorder").value = lsGet("lamb_name");
+  $("btn-scan-danimal").addEventListener("click", function(){ openScanner("in-danimal","Scan the animal's ear tag"); });
+
+  /* Find the lamb's birth record so age at death is computed, not guessed. */
+  var foundBirth="";
+  function lookupAge(){
+    var id=$("in-danimal").value.trim(), hint=$("age-hint");
+    foundBirth="";
+    if(!id || dtypePick.get()!=="lamb"){ hint.textContent=""; return; }
+    var key=id.toLowerCase();
+    var lamb=DATA.lambs.filter(function(b){ return String(b.lamb_id).toLowerCase()===key; })[0];
+    if(!lamb){ hint.textContent="No birth record found for that ID — it still saves, just without an age."; return; }
+    foundBirth=lamb.date||"";
+    var found=$("in-dfound").value||todayKey();
+    var d1=new Date(foundBirth+"T00:00:00"), d2=new Date(found+"T00:00:00");
+    var days=Math.round((d2-d1)/86400000);
+    if(isNaN(days)||days<0){ hint.textContent="Born "+foundBirth+"."; return; }
+    hint.textContent="Born "+foundBirth+" — "+(days===0?"died the same day":days===1?"1 day old":days+" days old")+
+                     (days<=3?" · neonatal":"")+".";
+  }
+  $("in-danimal").addEventListener("input", lookupAge);
+  $("in-dfound").addEventListener("change", lookupAge);
+
+  $("btn-save-death").addEventListener("click", async function(){
+    var msg=$("death-msg"); clearMsg(msg);
+    var animal=$("in-danimal").value.trim();
+    var who=$("in-drecorder").value.trim();
+    if(!animal){ showMsg(msg,"Enter or scan the animal's ID.","err"); $("in-danimal").focus(); return; }
+    if(who.length<2){ showMsg(msg,"Add your name so the record shows who found it.","err"); $("in-drecorder").focus(); return; }
+    if(!window.confirm("Record "+animal+" as dead? This marks the animal as lost on the season record.")) return;
+    lsSet("lamb_name", who);
+
+    var found=$("in-dfound").value||todayKey();
+    var age="";
+    if(foundBirth){
+      var d=Math.round((new Date(found+"T00:00:00")-new Date(foundBirth+"T00:00:00"))/86400000);
+      if(!isNaN(d)&&d>=0) age=d;
+    }
+    var btn=$("btn-save-death"); btn.disabled=true; btn.textContent="Saving…";
+    var now=new Date();
+    try{
+      var res=await apiPost({
+        action:"death",
+        death_id:"D"+now.getTime().toString(36)+"-"+Math.random().toString(36).slice(2,6),
+        date:found, time:fmtTime(now.getTime()), iso:now.toISOString(),
+        recorded_by:who, animal_type:dtypePick.get(), animal_id:animal,
+        birth_date:foundBirth, age_days:age,
+        cause:$("in-cause").value.trim(), necropsy:necropsyPick.get(),
+        disposal:$("in-disposal").value.trim(), notes:$("in-dnotes").value.trim()
+      });
+      var agePart = (res.age_days===""||res.age_days==null) ? "" :
+        " at "+(res.age_days===0?"under a day":res.age_days===1?"1 day":res.age_days+" days")+" old";
+      showMsg(msg,"Recorded — "+animal+" died"+agePart+".","ok");
+      ["in-danimal","in-cause","in-disposal","in-dnotes"].forEach(function(id){ $(id).value=""; });
+      necropsyPick.set("no"); $("age-hint").textContent=""; foundBirth="";
+      apiAll(true).catch(function(){});
+    }catch(e){
+      showMsg(msg,"That didn't save — check your connection and tap Save again.","err");
+    }
+    btn.disabled=false; btn.textContent="Save death record";
+  });
+
+  /* ==========================================================
+     TAB — CHECKLIST: pick a path, then step through it
+     ========================================================== */
+  var curPath=null, stepIx=0;
+
+  function paintPaths(){
+    var box=$("path-choices"); box.innerHTML="";
+    PATHS.forEach(function(pth){
+      var b=document.createElement("button");
+      b.type="button";
+      b.className="pathbtn"+(pth.tone?" "+pth.tone:"");
+      b.innerHTML='<span class="pt">'+esc(pth.label)+"</span>"+
+                  '<span class="ps">'+esc(pth.sub)+"</span>";
+      b.addEventListener("click", function(){ startPath(pth.id); });
+      box.appendChild(b);
+    });
+  }
+  function pathById(id){
+    for(var i=0;i<PATHS.length;i++) if(PATHS[i].id===id) return PATHS[i];
+    return null;
+  }
+  function startPath(id){
+    curPath=id; stepIx=0;
+    $("path-card").hidden=true;
+    $("step-wrap").hidden=false;
+    paintStep();
     window.scrollTo(0,0);
   }
-  $("link-admin").addEventListener("click", function(){ show("admin"); initGate(); });
-  $("btn-back").addEventListener("click", function(){ show("student"); renderToday(); });
+  function backToFork(){
+    curPath=null; stepIx=0;
+    $("step-wrap").hidden=true;
+    $("path-card").hidden=false;
+    window.scrollTo(0,0);
+  }
 
-  /* ---------- admin: passcode gate ---------- */
-  async function initGate(){
+  function paintStep(){
+    var pth=pathById(curPath); if(!pth) return backToFork();
+    var steps=pth.steps, s=steps[stepIx];
+
+    $("pathcrumb").innerHTML='<span>'+esc(pth.label)+"</span>";
+    var sw=document.createElement("button");
+    sw.type="button"; sw.textContent="change";
+    sw.addEventListener("click", backToFork);
+    $("pathcrumb").appendChild(sw);
+
+    var track=$("steptrack"); track.innerHTML="";
+    steps.forEach(function(_,i){
+      var b=document.createElement("i");
+      b.className = i<stepIx ? "done" : (i===stepIx ? "on" : "");
+      track.appendChild(b);
+    });
+
+    $("stepnum").textContent="Step "+(stepIx+1)+" of "+steps.length;
+    $("steptitle").textContent=s.title;
+
+    /* Photos are optional. Stay hidden until the file actually loads, so a
+       step with no picture yet shows nothing at all rather than a blank box. */
+    var img=$("stepphoto"), cap=$("photocap");
+    var want=stepIx;                       /* ignore a late load from a previous step */
+    img.hidden=true; cap.hidden=true; cap.textContent="";
+    img.onload=null; img.onerror=null;
+    if(s.photo){
+      img.alt=s.caption||s.title;
+      img.onload=function(){
+        if(want!==stepIx) return;
+        img.hidden=false;
+        if(s.caption){ cap.textContent=s.caption; cap.hidden=false; }
+      };
+      img.onerror=function(){ img.hidden=true; cap.hidden=true; };
+      img.src=s.photo;
+    }else{
+      img.removeAttribute("src");
+    }
+
+    /* A bullet written "Word: ..." gets that label bolded, so mnemonics like
+       Strip / Dip / Sip stand out. The text is escaped before matching.
+       A bullet can also be {text:"...", sub:["...","..."]} for a nested list,
+       e.g. a supply list under one instruction. */
+    function label(raw){
+      var t=esc(raw), m=t.match(/^([A-Za-z][A-Za-z ]{0,14}):\s+/);
+      return m ? "<strong>"+m[1]+":</strong> "+t.slice(m[0].length) : t;
+    }
+    function bullet(p){
+      if(p && typeof p==="object"){
+        var subs=(p.sub && p.sub.length)
+          ? "<ul>"+p.sub.map(function(x){ return "<li>"+label(x)+"</li>"; }).join("")+"</ul>"
+          : "";
+        return "<li>"+label(p.text||"")+subs+"</li>";
+      }
+      return "<li>"+label(p)+"</li>";
+    }
+    $("stepbody").innerHTML=(s.body ? "<p>"+esc(s.body)+"</p>" : "")+
+      (s.points && s.points.length ? "<ul"+(s.body?"":' class="lead"')+">"+
+        s.points.map(bullet).join("")+"</ul>" : "");
+    if(s.tip){ $("steptip").textContent=s.tip; $("steptip").hidden=false; }
+    else $("steptip").hidden=true;
+
+    $("btn-step-back").disabled = stepIx===0;
+    $("btn-step-next").textContent = stepIx===steps.length-1
+      ? (pth.endLabel || "Done")
+      : "Next step";
+    $("step-card").scrollIntoView({block:"nearest"});
+  }
+
+  $("btn-step-next").addEventListener("click", function(){
+    var pth=pathById(curPath); if(!pth) return;
+    if(stepIx===pth.steps.length-1){
+      /* a path can hand off to another checklist, or to a tab */
+      if(pth.endPath && pathById(pth.endPath)){ startPath(pth.endPath); return; }
+      var dest=pth.endTab;
+      backToFork();              /* leave the checklist ready for the next round */
+      if(dest) goTab(dest);
+      return;
+    }
+    stepIx++; paintStep();
+  });
+  $("btn-step-back").addEventListener("click", function(){ if(stepIx>0){ stepIx--; paintStep(); } });
+  $("btn-step-restart").addEventListener("click", backToFork);
+  paintPaths();
+
+  /* ==========================================================
+     TAB 5 — LIVE REPORT
+     ========================================================== */
+  async function renderReport(){
+    var st=$("report-status");
+    st.textContent="Loading…";
+    ["report-stats","pen-card","cause-card","followup-card","recent-card"].forEach(function(id){ $(id).hidden=true; });
+    if(!apiReady()){ st.textContent="Setup needed: paste your Apps Script URL into API_URL."; return; }
+    try{ await apiAll(true); }
+    catch(e){ st.textContent="Couldn't reach the sheet — check your connection."; return; }
+
+    var L=DATA.lambings, B=DATA.lambs, T=DATA.treatments, D=DATA.deaths;
+    if(!L.length){ st.textContent="No lambings recorded yet. The first record will fill this in."; return; }
+
+    var ewes={}; L.forEach(function(l){ ewes[String(l.ewe_id).toLowerCase()]=1; });
+    var eweCount=Object.keys(ewes).length;
+    var total=0, alive=0, dead=0;
+    L.forEach(function(l){
+      total += Number(l.born_total)||0;
+      alive += Number(l.born_alive)||0;
+      dead  += Number(l.born_dead)||0;
+    });
+    var prolific = eweCount ? (total/eweCount) : 0;
+    var stillPct = total ? (dead/total*100) : 0;
+
+    /* deaths after birth — lambs and ewes counted separately */
+    var lambDeaths = D.filter(function(d){ return String(d.animal_type).toLowerCase()!=="ewe"; });
+    var eweDeaths  = D.filter(function(d){ return String(d.animal_type).toLowerCase()==="ewe"; });
+    var liveNow    = Math.max(0, alive - lambDeaths.length);
+    var neoPct     = alive  ? (lambDeaths.length/alive*100) : 0;   /* of those born alive */
+    var lossPct    = total  ? ((dead+lambDeaths.length)/total*100) : 0;
+
+    var cutoff=Date.now()-86400000;
+    var last24=L.filter(function(l){ return l.ts>cutoff; });
+    var lambs24=last24.reduce(function(a,l){ return a+(Number(l.born_total)||0); },0);
+
+    var fl=L.filter(function(l){ return String(l.followup).toLowerCase()==="yes"; });
+    var ft=T.filter(function(t){ return String(t.followup).toLowerCase()==="yes"; });
+    var openCount=fl.length+ft.length;
+
+    st.textContent="Updated "+fmtTime(Date.now())+" · "+L.length+" lambing record"+(L.length===1?"":"s")+
+                   (eweDeaths.length ? " · "+eweDeaths.length+" ewe"+(eweDeaths.length===1?"":"s")+" lost" : "")+".";
+    $("report-stats").hidden=false;
+    $("report-stats").innerHTML=
+      stat(eweCount, "Ewes lambed")+
+      stat(liveNow, "Lambs alive now")+
+      stat(prolific.toFixed(2), "Lambs per ewe")+
+      stat(stillPct.toFixed(1)+"%", "Born dead", stillPct>10)+
+      stat(lambDeaths.length, "Died after birth", lambDeaths.length>0)+
+      stat(lossPct.toFixed(1)+"%", "Total lamb loss", lossPct>15)+
+      stat(last24.length+" / "+lambs24, "Ewes / lambs, last 24 h")+
+      stat(jugsInUse()+" / "+JUGS.length, "Jugs in use")+
+      stat(openCount, "Open follow-ups", openCount>0);
+
+    /* where everyone is right now — jug placement plus every logged move */
+    var at=whereIsEveryone(), pens={};
+    Object.keys(at).forEach(function(k){
+      var p=at[k].loc||"—";
+      if(!pens[p]) pens[p]={ewes:0,lambs:0};
+      pens[p].ewes++; pens[p].lambs += at[k].lambs;
+    });
+    var penKeys=Object.keys(pens).sort(function(a,b){
+      return String(a).localeCompare(String(b), undefined, {numeric:true});
+    });
+    if(penKeys.length){
+      $("pen-card").hidden=false;
+      $("pen-table").innerHTML=
+        "<thead><tr><th>Location</th><th>Ewes</th><th>Live lambs</th></tr></thead><tbody>"+
+        penKeys.map(function(p){
+          return "<tr><td>"+esc(p)+"</td><td>"+pens[p].ewes+"</td><td>"+pens[p].lambs+"</td></tr>";
+        }).join("")+"</tbody>";
+    }
+
+    /* deaths after birth, grouped by cause */
+    if(D.length){
+      var causes={};
+      D.forEach(function(d){
+        var c=(d.cause||"").trim()||"Not recorded";
+        if(!causes[c]) causes[c]={n:0,ages:[]};
+        causes[c].n++;
+        var a=Number(d.age_days);
+        if(d.age_days!=="" && !isNaN(a)) causes[c].ages.push(a);
+      });
+      var cKeys=Object.keys(causes).sort(function(a,b){ return causes[b].n-causes[a].n; });
+      $("cause-card").hidden=false;
+      $("cause-table").innerHTML=
+        "<thead><tr><th>Cause</th><th>Count</th><th>Median age</th></tr></thead><tbody>"+
+        cKeys.map(function(c){
+          var ag=causes[c].ages.slice().sort(function(x,y){return x-y;});
+          var med = ag.length ? ag[Math.floor(ag.length/2)]+" d" : "—";
+          return "<tr><td>"+esc(c)+"</td><td>"+causes[c].n+"</td><td>"+esc(med)+"</td></tr>";
+        }).join("")+"</tbody>";
+    }
+
+    /* follow-ups */
+    if(openCount){
+      $("followup-card").hidden=false;
+      $("followup-list").innerHTML =
+        fl.map(function(l){
+          return '<div class="followup"><b>Ewe '+esc(l.ewe_id)+" · "+esc(l.pen||"")+"</b>"+
+                 esc(l.followup_note || l.notes || "Flagged at the lambing record.")+
+                 '<div class="hint">'+esc(l.date)+" "+esc(l.time)+" · "+esc(l.recorded_by||"")+"</div></div>";
+        }).join("")+
+        ft.map(function(t){
+          return '<div class="followup"><b>'+esc(t.animal_type)+" "+esc(t.animal_id)+" · "+esc(t.treatment)+"</b>"+
+                 esc(t.notes || t.reason || "Flagged at the treatment record.")+
+                 '<div class="hint">'+esc(t.date)+" "+esc(t.time)+" · "+esc(t.recorded_by||"")+"</div></div>";
+        }).join("");
+    }
+
+    /* recent lambings */
+    var recent=L.slice(-8).reverse();
+    if(recent.length){
+      $("recent-card").hidden=false;
+      $("recent-lambings").innerHTML=recent.map(function(l){
+        return '<li><span class="lt">'+esc(l.date.slice(5))+" "+esc(l.time)+"</span>"+
+               "<span><b>"+esc(l.ewe_id)+"</b> · "+esc(l.born_alive)+" live"+
+               (Number(l.born_dead)?", "+esc(l.born_dead)+" dead":"")+"</span>"+
+               '<span class="ls">'+esc(l.pen||"—")+"</span></li>";
+      }).join("");
+    }
+  }
+  function stat(v,k,warn){
+    return '<div class="stat'+(warn?" warn":"")+'"><div class="v">'+esc(v)+'</div><div class="k">'+esc(k)+"</div></div>";
+  }
+  $("btn-report-refresh").addEventListener("click", renderReport);
+
+  /* ==========================================================
+     ADMIN
+     ========================================================== */
+  function showView(v){
+    $("view-app").hidden   = v!=="app";
+    $("view-admin").hidden = v!=="admin";
+    window.scrollTo(0,0);
+  }
+  $("link-admin").addEventListener("click", function(){ showView("admin"); initGate(); });
+  $("btn-back").addEventListener("click", function(){ showView("app"); renderToday(); });
+
+  function initGate(){
     $("gate-card").hidden=false; $("admin-body").hidden=true; clearMsg($("gate-msg"));
     $("gate-hint").textContent="Enter the instructor passcode (set in this file's ADMIN_PASS).";
   }
-  $("btn-gate").addEventListener("click", async function(){
-    var p=$("in-pass").value;
-    var msg=$("gate-msg"); clearMsg(msg);
+  $("btn-gate").addEventListener("click", function(){
+    var p=$("in-pass").value, msg=$("gate-msg"); clearMsg(msg);
     if(p!==ADMIN_PASS){ showMsg(msg,"That passcode doesn't match.","err"); return; }
     $("in-pass").value="";
     $("gate-card").hidden=true; $("admin-body").hidden=false;
     renderAdmin();
   });
 
-  /* ---------- admin: ledger ---------- */
-  var allDays={}; /* dateKey -> entries[] */
+  var allDays={};
   async function renderAdmin(){
-    var status=$("admin-status"), box=$("admin-days");
-    status.textContent="Loading entries…"; box.innerHTML=""; allDays={};
-    if(!apiReady()){ status.textContent="Setup needed: paste your Apps Script URL into API_URL at the top of the script."; return; }
-    var all;
-    try{ all=await apiAll(); }
-    catch(e){ status.textContent="Couldn't reach the attendance sheet — check your connection and the Apps Script deployment."; return; }
-    if(!all.length){ status.textContent="No check-ins recorded yet. Once students start scanning, entries appear here by day."; return; }
-    all.forEach(function(e){ (allDays[e.date]=allDays[e.date]||[]).push(e); });
-    var keys=Object.keys(allDays).sort().reverse();
-    keys.forEach(function(dk){ box.insertAdjacentHTML("beforeend", dayBlock(dk, allDays[dk])); });
-    status.textContent=all.length+" check-in"+(all.length===1?"":"s")+" across "+keys.length+" day"+(keys.length===1?"":"s")+".";
-    box.querySelectorAll("[data-del]").forEach(function(b){
-      b.addEventListener("click", function(){ removeEntry(b.getAttribute("data-del")); });
-    });
+    var st=$("admin-status"), box=$("admin-days");
+    st.textContent="Loading…"; box.innerHTML=""; allDays={};
+    $("lambing-status").textContent="Loading…"; $("admin-lambings").innerHTML="";
+    $("treat-status").textContent="Loading…"; $("admin-treatments").innerHTML="";
+    if(!apiReady()){ st.textContent="Setup needed: paste your Apps Script URL into API_URL."; return; }
+    try{ await apiAll(true); }
+    catch(e){ st.textContent="Couldn't reach the sheet — check the Apps Script deployment."; return; }
+
+    /* check-ins by day */
+    var all=DATA.entries;
+    if(!all.length){ st.textContent="No check-ins recorded yet."; }
+    else{
+      all.forEach(function(e){ (allDays[e.date]=allDays[e.date]||[]).push(e); });
+      var keys=Object.keys(allDays).sort().reverse();
+      keys.forEach(function(dk){ box.insertAdjacentHTML("beforeend", dayBlock(dk, allDays[dk])); });
+      st.textContent=all.length+" check-in"+(all.length===1?"":"s")+" across "+keys.length+" day"+(keys.length===1?"":"s")+".";
+      box.querySelectorAll("[data-del]").forEach(function(b){
+        b.addEventListener("click", function(){ removeRec("checkin", b.getAttribute("data-del")); });
+      });
+    }
+
+    /* lambings */
+    var L=DATA.lambings.slice().reverse();
+    if(!L.length){ $("lambing-status").textContent="No lambings recorded yet."; }
+    else{
+      $("lambing-status").textContent=L.length+" lambing record"+(L.length===1?"":"s")+".";
+      $("admin-lambings").innerHTML=
+        "<table><thead><tr><th>Date</th><th>Ewe</th><th>Pen</th><th>Born</th><th>Lambs</th>"+
+        "<th>Assist</th><th>By</th><th></th></tr></thead><tbody>"+
+        L.map(function(l){
+          var kids=DATA.lambs.filter(function(b){ return b.lambing_id===l.lambing_id; });
+          var kidTxt=kids.map(function(b){
+            return esc((b.lamb_id||"—"))+" "+esc(b.sex||"")+(b.birth_wt!==""?" "+esc(b.birth_wt)+"lb":"")+
+                   (String(b.status).toLowerCase()==="dead"?" (dead)":"")+
+                   (b.tsu_id?' <span style="color:#5C6B7A">TSU '+esc(b.tsu_id)+"</span>":"");
+          }).join("<br>");
+          return "<tr>"+
+            '<td class="mono">'+esc(l.date)+"<br>"+esc(l.time)+"</td>"+
+            "<td><b>"+esc(l.ewe_id)+"</b>"+(String(l.followup).toLowerCase()==="yes"?'<br><span class="geo far">follow up</span>':"")+"</td>"+
+            "<td>"+esc(l.pen)+"</td>"+
+            "<td>"+esc(l.born_total)+"<br><span style='color:#5C6B7A;font-size:12px'>"+esc(l.born_alive)+" live"+
+              (Number(l.born_dead)?", "+esc(l.born_dead)+" dead":"")+"</span></td>"+
+            '<td style="font-size:12.5px">'+(kidTxt||"—")+"</td>"+
+            "<td>"+esc(l.assistance)+"</td>"+
+            "<td>"+esc(l.recorded_by)+"</td>"+
+            '<td><button class="btn danger-link" data-dell="'+esc(l.lambing_id)+'">Remove</button></td>'+
+          "</tr>";
+        }).join("")+"</tbody></table>";
+      $("admin-lambings").querySelectorAll("[data-dell]").forEach(function(b){
+        b.addEventListener("click", function(){ removeRec("lambing", b.getAttribute("data-dell")); });
+      });
+    }
+
+    /* treatments */
+    var T=DATA.treatments.slice().reverse();
+    if(!T.length){ $("treat-status").textContent="No treatments recorded yet."; }
+    else{
+      $("treat-status").textContent=T.length+" treatment"+(T.length===1?"":"s")+".";
+      $("admin-treatments").innerHTML=
+        "<table><thead><tr><th>Date</th><th>Animal</th><th>Treatment</th><th>Dose</th>"+
+        "<th>Route</th><th>Reason</th><th>By</th><th></th></tr></thead><tbody>"+
+        T.map(function(t){
+          return "<tr>"+
+            '<td class="mono">'+esc(t.date)+"<br>"+esc(t.time)+"</td>"+
+            "<td>"+esc(t.animal_type)+" <b>"+esc(t.animal_id)+"</b>"+
+              (String(t.followup).toLowerCase()==="yes"?'<br><span class="geo far">follow up</span>':"")+"</td>"+
+            "<td>"+esc(t.treatment)+"</td><td>"+esc(t.dose)+"</td><td>"+esc(t.route)+"</td>"+
+            "<td>"+esc(t.reason)+"</td><td>"+esc(t.recorded_by)+"</td>"+
+            '<td><button class="btn danger-link" data-delt="'+esc(t.treatment_id)+'">Remove</button></td>'+
+          "</tr>";
+        }).join("")+"</tbody></table>";
+      $("admin-treatments").querySelectorAll("[data-delt]").forEach(function(b){
+        b.addEventListener("click", function(){ removeRec("treatment", b.getAttribute("data-delt")); });
+      });
+    }
+
+    /* deaths */
+    var D=DATA.deaths.slice().reverse();
+    if(!D.length){ $("death-status").textContent="No deaths recorded after birth."; $("admin-deaths").innerHTML=""; }
+    else{
+      var lambD=D.filter(function(d){ return String(d.animal_type).toLowerCase()!=="ewe"; }).length;
+      var eweD=D.length-lambD;
+      $("death-status").textContent=lambD+" lamb"+(lambD===1?"":"s")+
+        (eweD?" and "+eweD+" ewe"+(eweD===1?"":"s"):"")+" lost after birth.";
+      $("admin-deaths").innerHTML=
+        "<table><thead><tr><th>Date found</th><th>Animal</th><th>Born</th><th>Age</th><th>Cause</th>"+
+        "<th>Necropsy</th><th>Disposal</th><th>By</th><th></th></tr></thead><tbody>"+
+        D.map(function(d){
+          var age = (d.age_days===""||d.age_days==null) ? "—"
+                  : (Number(d.age_days)===0 ? "<1 d" : d.age_days+" d");
+          return "<tr>"+
+            '<td class="mono">'+esc(d.date)+"<br>"+esc(d.time)+"</td>"+
+            "<td>"+esc(d.animal_type)+" <b>"+esc(d.animal_id)+"</b></td>"+
+            '<td class="mono">'+esc(d.birth_date||"—")+"</td>"+
+            '<td class="mono">'+esc(age)+"</td>"+
+            "<td>"+esc(d.cause||"—")+"</td>"+
+            "<td>"+esc(d.necropsy)+"</td><td>"+esc(d.disposal)+"</td><td>"+esc(d.recorded_by)+"</td>"+
+            '<td><button class="btn danger-link" data-deld="'+esc(d.death_id)+'">Remove</button></td>'+
+          "</tr>";
+        }).join("")+"</tbody></table>";
+      $("admin-deaths").querySelectorAll("[data-deld]").forEach(function(b){
+        b.addEventListener("click", function(){ removeRec("death", b.getAttribute("data-deld")); });
+      });
+    }
+
+    /* movements */
+    var M=DATA.moves.slice().reverse();
+    if(!M.length){ $("move-status").textContent="No movements recorded yet."; $("admin-moves").innerHTML=""; }
+    else{
+      $("move-status").textContent=M.length+" movement"+(M.length===1?"":"s")+" recorded.";
+      $("admin-moves").innerHTML=
+        "<table><thead><tr><th>Date</th><th>Ewe</th><th>From</th><th>To</th><th>Lambs</th>"+
+        "<th>Notes</th><th>By</th><th></th></tr></thead><tbody>"+
+        M.map(function(m){
+          return "<tr>"+
+            '<td class="mono">'+esc(m.date)+"<br>"+esc(m.time)+"</td>"+
+            "<td><b>"+esc(m.ewe_id)+"</b></td>"+
+            "<td>"+esc(m.from_location||"—")+"</td>"+
+            "<td><b>"+esc(m.to_location)+"</b></td>"+
+            "<td>"+esc(m.lamb_count)+"</td>"+
+            "<td>"+esc(m.notes)+"</td><td>"+esc(m.recorded_by)+"</td>"+
+            '<td><button class="btn danger-link" data-delm="'+esc(m.move_id)+'">Remove</button></td>'+
+          "</tr>";
+        }).join("")+"</tbody></table>";
+      $("admin-moves").querySelectorAll("[data-delm]").forEach(function(b){
+        b.addEventListener("click", function(){ removeRec("move", b.getAttribute("data-delm")); });
+      });
+    }
   }
   function dayBlock(dk,list){
     var rows=list.map(function(e){
-      return "<tr>"
-        +'<td class="mono">'+esc(fmtTime(e.ts))+"</td>"
-        +"<td>"+esc(e.name)+"</td>"
-        +"<td>"+esc(shiftName(e.shift))+"</td>"
-        +"<td>"+geoCell(e)+"</td>"
-        +'<td><button class="btn danger-link" data-del="'+esc(e.uid)+'">Remove</button></td>'
-        +"</tr>";
+      return "<tr>"+
+        '<td class="mono">'+esc(fmtTime(e.ts))+"</td>"+
+        "<td>"+esc(e.name)+"</td>"+
+        "<td>"+esc(shiftName(e.shift))+"</td>"+
+        "<td>"+geoCell(e)+"</td>"+
+        '<td><button class="btn danger-link" data-del="'+esc(e.uid)+'">Remove</button></td>'+
+      "</tr>";
     }).join("");
-    return '<div class="dayhead">'+esc(fmtDate(dk))+'<span class="cnt">'+list.length+" entr"+(list.length===1?"y":"ies")+"</span></div>"
-      +'<table><thead><tr><th>Time</th><th>Name</th><th>Shift</th><th>Location</th><th></th></tr></thead><tbody>'+rows+"</tbody></table>";
+    return '<div class="dayhead">'+esc(fmtDate(dk))+'<span class="cnt">'+list.length+" entr"+(list.length===1?"y":"ies")+"</span></div>"+
+      '<div class="tablewrap"><table><thead><tr><th>Time</th><th>Name</th><th>Shift</th><th>Location</th><th></th></tr></thead><tbody>'+rows+"</tbody></table></div>";
   }
   function geoCell(e){
     if(!e.lat) return '<span class="geo none">no location</span>';
-    var link='https://www.google.com/maps?q='+encodeURIComponent(e.lat+","+e.lon);
-    var d=e.dist===""||e.dist==null ? "" : (e.dist<1000 ? e.dist+" m" : (e.dist/1000).toFixed(1)+" km");
+    var link="https://www.google.com/maps?q="+encodeURIComponent(e.lat+","+e.lon);
+    var d=(e.dist===""||e.dist==null) ? "" : (e.dist<1000 ? e.dist+" m" : (e.dist/1000).toFixed(1)+" km");
     var cls=e.atfarm==="yes" ? "ok" : "far";
     var label=e.atfarm==="yes" ? "at farm" : d+" away";
     return '<a class="geo '+cls+'" href="'+esc(link)+'" target="_blank" rel="noopener">'+esc(label)+"</a>";
   }
-  async function removeEntry(uid){
-    if(!window.confirm("Remove this check-in from the ledger?")) return;
-    try{
-      await apiPost({action:"remove", uid:uid, pass:ADMIN_PASS});
-      renderAdmin();
-    }catch(e){ window.alert("Couldn't remove the entry — refresh and try again."); }
+  async function removeRec(kind, uid){
+    var what = kind==="lambing" ? "this lambing record and all of its lambs"
+             : kind==="treatment" ? "this treatment"
+             : kind==="death" ? "this death record (the lamb goes back to alive)"
+             : kind==="move" ? "this movement (she reverts to where she was before it)"
+             : "this check-in";
+    if(!window.confirm("Remove "+what+"?")) return;
+    try{ await apiPost({action:"remove", kind:kind, uid:uid, pass:ADMIN_PASS}); renderAdmin(); }
+    catch(e){ window.alert("Couldn't remove it — refresh and try again."); }
   }
   $("btn-refresh").addEventListener("click", renderAdmin);
 
-  /* ---------- admin: CSV ---------- */
-  $("btn-csv").addEventListener("click", function(){
+  /* ---------- CSV exports ---------- */
+  function csvCell(v){
+    v=String(v==null?"":v);
+    if(/^[=+\-@\t\r]/.test(v)) v="'"+v;          /* neutralize formula injection */
+    return /[",\n\r]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v;
+  }
+  function download(name, rows){
+    var csv=rows.map(function(r){ return r.map(csvCell).join(","); }).join("\r\n");
+    var a=document.createElement("a");
+    a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+    a.download=name; document.body.appendChild(a); a.click(); a.remove();
+  }
+  $("btn-csv-checkins").addEventListener("click", function(){
     var rows=[["date","time","name","shift","latitude","longitude","accuracy_m","distance_m","at_farm","iso_timestamp"]];
-    Object.keys(allDays).sort().forEach(function(dk){
-      allDays[dk].forEach(function(e){
-        rows.push([dk, fmtTime(e.ts), e.name, shiftName(e.shift), e.lat||"", e.lon||"", e.acc||"", e.dist||"", e.atfarm||"", e.iso||new Date(e.ts).toISOString()]);
+    DATA.entries.forEach(function(e){
+      rows.push([e.date, e.time||fmtTime(e.ts), e.name, shiftName(e.shift), e.lat, e.lon, e.acc, e.dist, e.atfarm, e.iso]);
+    });
+    download("lambing-checkins-"+todayKey()+".csv", rows);
+  });
+  $("btn-csv-lambs").addEventListener("click", function(){
+    var rows=[["date","time","ewe_id","pen","lamb_id","tsu_id","sex","birth_wt","status",
+               "born_total","born_alive","born_dead","assistance","followup","followup_note",
+               "lambing_notes","lamb_notes","recorded_by","lambing_id","iso_timestamp"]];
+    DATA.lambings.forEach(function(l){
+      var kids=DATA.lambs.filter(function(b){ return b.lambing_id===l.lambing_id; });
+      if(!kids.length) kids=[{}];
+      kids.forEach(function(b){
+        rows.push([l.date, l.time, l.ewe_id, l.pen, b.lamb_id||"", b.tsu_id||"", b.sex||"",
+                   b.birth_wt===undefined?"":b.birth_wt, b.status||"",
+                   l.born_total, l.born_alive, l.born_dead, l.assistance, l.followup, l.followup_note,
+                   l.notes, b.notes||"", l.recorded_by, l.lambing_id, l.iso_timestamp]);
       });
     });
-    var csv=rows.map(function(r){
-      return r.map(function(c){ c=String(c); return /[",\n]/.test(c) ? '"'+c.replace(/"/g,'""')+'"' : c; }).join(",");
-    }).join("\r\n");
-    var blob=new Blob([csv],{type:"text/csv"});
-    var a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);
-    a.download="lambing-checkins-"+todayKey()+".csv";
-    document.body.appendChild(a); a.click(); a.remove();
+    download("lambing-records-"+todayKey()+".csv", rows);
+  });
+  $("btn-csv-treatments").addEventListener("click", function(){
+    var rows=[["date","time","animal_type","animal_id","treatment","dose","route","reason",
+               "followup","notes","recorded_by","iso_timestamp"]];
+    DATA.treatments.forEach(function(t){
+      rows.push([t.date,t.time,t.animal_type,t.animal_id,t.treatment,t.dose,t.route,t.reason,
+                 t.followup,t.notes,t.recorded_by,t.iso_timestamp]);
+    });
+    download("lambing-treatments-"+todayKey()+".csv", rows);
+  });
+  $("btn-csv-deaths").addEventListener("click", function(){
+    var rows=[["date_found","time","animal_type","animal_id","birth_date","age_days","cause",
+               "necropsy","disposal","notes","recorded_by","iso_timestamp"]];
+    DATA.deaths.forEach(function(d){
+      rows.push([d.date,d.time,d.animal_type,d.animal_id,d.birth_date,d.age_days,d.cause,
+                 d.necropsy,d.disposal,d.notes,d.recorded_by,d.iso_timestamp]);
+    });
+    download("lambing-deaths-"+todayKey()+".csv", rows);
+  });
+  $("btn-csv-moves").addEventListener("click", function(){
+    var rows=[["date","time","ewe_id","from_location","to_location","lamb_count","notes","recorded_by","iso_timestamp"]];
+    DATA.moves.forEach(function(m){
+      rows.push([m.date,m.time,m.ewe_id,m.from_location,m.to_location,m.lamb_count,m.notes,m.recorded_by,m.iso_timestamp]);
+    });
+    /* plus a snapshot of where everyone is right now */
+    var at=whereIsEveryone();
+    rows.push([]); rows.push(["CURRENT LOCATIONS as of",new Date().toLocaleString()]);
+    rows.push(["ewe_id","location","lambs","since"]);
+    Object.keys(at).sort().forEach(function(k){
+      rows.push([at[k].ewe, at[k].loc, at[k].lambs, at[k].since]);
+    });
+    download("lambing-movements-"+todayKey()+".csv", rows);
   });
 
-  /* ---------- admin: QR poster ---------- */
+  /* ---------- QR poster ---------- */
   $("btn-qr-toggle").addEventListener("click", function(){
     var c=$("qr-card"); c.hidden=!c.hidden;
-    if(!c.hidden && !$("in-url").value){
-      try{ $("in-url").value=window.location.href; }catch(e){}
-    }
+    if(!c.hidden && !$("in-url").value){ try{ $("in-url").value=window.location.href; }catch(e){} }
   });
   $("btn-qr-make").addEventListener("click", function(){
     var url=$("in-url").value.trim();
@@ -553,9 +2289,12 @@
     setTimeout(function(){ document.body.classList.remove("printing-poster"); }, 500);
   });
 
+  /* ---------- boot ---------- */
+  paintLamp();
+  goTab(TABS[0].id);   /* open on whichever tab is first in the TABS list */
+  renderToday();
+
 })();
 </script>
-</body>
-</html>
 </body>
 </html>
