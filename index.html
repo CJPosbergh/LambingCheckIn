@@ -5,8 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ANSC 132: Lambing — MAES Ft. Ellis</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@600;700&display=swap" rel="stylesheet">
+<!-- The QR library is only needed for the instructor's poster, so it loads on
+     demand rather than blocking every student's first paint. -->
 <style>
   :root{
     --field:#F2F4F0;      /* cool pasture fog */
@@ -20,9 +22,11 @@
     --red:#9C3B2E;
     --line:#D9DED6;
     --muted:#5C6B7A;
-    --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
-    --slab:'Zilla Slab',Rockwell,serif;
-    --body:'Public Sans',system-ui,-apple-system,sans-serif;
+    /* Only the display face is downloaded. Body and mono use whatever the
+       phone already has, so there is nothing to wait for on barn signal. */
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --slab:'Zilla Slab',Rockwell,Georgia,serif;
+    --body:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   /* class rules like .stats{display:grid} otherwise beat the [hidden] attribute
@@ -1075,6 +1079,7 @@
     TABS.forEach(function(t){ $("pane-"+t.id).hidden = t.id!==id; });
     paintTabs();
     window.scrollTo(0,0);
+    if(id==="checkin") renderToday();
     if(id==="report") renderReport();
     if(id==="lambing") ensureEwes().then(function(){ refreshThen(paintPens); });
     if(id==="move")    ensureEwes().then(function(){
@@ -2363,12 +2368,24 @@
     var c=$("qr-card"); c.hidden=!c.hidden;
     if(!c.hidden && !$("in-url").value){ try{ $("in-url").value=window.location.href; }catch(e){} }
   });
-  $("btn-qr-make").addEventListener("click", function(){
+  function loadQR(){
+    return new Promise(function(resolve,reject){
+      if(window.QRCode) return resolve();
+      var s=document.createElement("script");
+      s.src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
+      s.onload=resolve;
+      s.onerror=function(){ reject(new Error("qr load failed")); };
+      document.head.appendChild(s);
+    });
+  }
+  $("btn-qr-make").addEventListener("click", async function(){
     var url=$("in-url").value.trim();
     if(!url){ window.alert("Paste the link to this app first."); return; }
-    $("qrbox").innerHTML=""; $("qrbox-print").innerHTML="";
+    $("qrbox").innerHTML='<p class="hint">Loading…</p>'; $("qrbox-print").innerHTML="";
+    try{ await loadQR(); }catch(e){}
+    $("qrbox").innerHTML="";
     if(typeof QRCode==="undefined"){
-      $("qrbox").innerHTML='<p class="hint">The QR library didn\'t load — check your connection and reopen the app.</p>';
+      $("qrbox").innerHTML='<p class="hint">The QR library didn\'t load — check your connection and try again.</p>';
       return;
     }
     new QRCode($("qrbox"),       {text:url, width:220, height:220, correctLevel:QRCode.CorrectLevel.M});
@@ -2383,8 +2400,9 @@
 
   /* ---------- boot ---------- */
   paintLamp();
-  goTab(TABS[0].id);   /* open on whichever tab is first in the TABS list */
-  renderToday();
+  /* The landing tab is the Checklist, which needs no data. Fetching is left to
+     whichever tab actually wants it, so opening the app costs one small file. */
+  goTab(TABS[0].id);
 
 })();
 </script>
