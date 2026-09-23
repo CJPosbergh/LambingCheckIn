@@ -711,6 +711,10 @@
   var MIXING  = ["Mixing pen 1","Mixing pen 2"];
   var GENERAL = ["General population"];
 
+  var DROP_PEN = "Drop pen";   /* where bred ewes wait — membership is inferred,
+                                  not recorded: any roster ewe with no lambing
+                                  record yet is still in here */
+
   var OTHER_PLACES = MIXING.concat(GENERAL);
   var PLACES = OTHER_PLACES.concat(JUGS);  /* onward pens first — they're the common taps */
 
@@ -1267,6 +1271,23 @@
     });
     return at;
   }
+  /* Roster ewes that have not lambed and are not already placed somewhere.
+     Soonest due first, then by ID, so the board reads like a watch list. */
+  function ewesYetToLamb(){
+    var lambed={}, placed=whereIsEveryone();
+    DATA.lambings.forEach(function(l){ lambed[String(l.ewe_id).toLowerCase()]=1; });
+    return DATA.ewes.filter(function(e){
+      var k=String(e.ewe_id).toLowerCase().trim();
+      return k && !lambed[k] && !placed[k];
+    }).sort(function(a,b){
+      var da=String(a.due_date||""), db=String(b.due_date||"");
+      if(da && db && da!==db) return da<db ? -1 : 1;
+      if(da && !db) return -1;
+      if(db && !da) return 1;
+      return String(a.ewe_id).localeCompare(String(b.ewe_id), undefined, {numeric:true});
+    });
+  }
+
   function jugsInUse(){
     return JUGS.filter(function(j){ return occupantsOf(j).length; }).length;
   }
@@ -1584,14 +1605,46 @@
   });
 
   /* ---------- the occupancy board ---------- */
+  /* one roster row: ID plus due date if the Ewes tab has one */
+  function waitingRow(e){
+    var due=String(e.due_date||"");
+    return "<li><b>"+esc(e.ewe_id)+"</b>"+
+           (e.group ? "<span>"+esc(e.group)+"</span>" : "<span></span>")+
+           '<span class="ml">'+(due ? "due "+esc(due.slice(5)) : "")+"</span></li>";
+  }
+
   function renderBoard(){
     var at=whereIsEveryone();
     var n=Object.keys(at).length;
-    if(!n){ $("board-status").textContent="Nothing to show until the first lambing is recorded."; $("board").innerHTML=""; return; }
+    var waiting=ewesYetToLamb();
+    if(!n && !waiting.length && !DATA.ewes.length){
+      $("board-status").textContent="Nothing to show until the ewe roster is filled in or the first lambing is recorded.";
+      $("board").innerHTML=""; return;
+    }
     var inJugs=JUGS.filter(function(j){ return occupantsOf(j).length; }).length;
-    $("board-status").textContent=inJugs+" of "+JUGS.length+" jugs in use · "+n+" ewe"+(n===1?"":"s")+" on the board.";
+    $("board-status").textContent=inJugs+" of "+JUGS.length+" jugs in use · "+n+" ewe"+(n===1?"":"s")+" lambed"+
+      (DATA.ewes.length ? " · "+waiting.length+" still to lamb" : "")+".";
 
-    var html='<div class="jugs">'+JUGS.map(function(j){
+    /* the drop pen comes first — it is where the season starts */
+    var html='<div class="grouphead">'+esc(DROP_PEN)+" · "+waiting.length+" ewe"+(waiting.length===1?"":"s")+" yet to lamb</div>";
+    if(!DATA.ewes.length){
+      html+='<p class="empty">No ewe roster yet. Paste your ewe list into the Ewes tab of the sheet and they will show up here until they lamb.</p>';
+    }else if(!waiting.length){
+      html+='<p class="empty">Every ewe on the roster has lambed.</p>';
+    }else{
+      /* soonest-due few by default — a 60-ewe roster would otherwise push the
+         jug grid off the screen on the tab whose main job is moving ewes */
+      var CAPW=6, shownW=waiting.slice(0,CAPW), restW=waiting.length-CAPW;
+      html+='<ul class="mixlist">'+shownW.map(waitingRow).join("")+"</ul>";
+      if(restW>0){
+        html+='<details style="margin-top:6px"><summary class="hint" style="cursor:pointer">'+
+              "Show "+restW+" more waiting</summary>"+
+              '<ul class="mixlist">'+waiting.slice(CAPW).map(waitingRow).join("")+"</ul></details>";
+      }
+    }
+    html+='<div style="height:16px"></div>';
+
+    html+='<div class="jugs">'+JUGS.map(function(j){
       var occ=occupantsOf(j);
       if(!occ.length) return '<div class="jug empty"><div class="jn">'+esc(j)+'</div><div class="je">empty</div></div>';
       return '<div class="jug full"><div class="jn">'+esc(j)+"</div>"+
