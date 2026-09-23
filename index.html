@@ -1461,9 +1461,9 @@
     if(missing && !window.confirm(missing+" live lamb"+(missing===1?" has":"s have")+" no ear tag ID. Save anyway?")) return;
 
     lsSet("lamb_name", who);
-    var btn=$("btn-save-lambing"); btn.disabled=true; btn.textContent="Getting location…";
-    var g=geoFields(await getPosition());
-    btn.textContent="Saving…";
+    /* No location on a lambing record: waiting on a GPS fix added seconds to
+       every save in the barn, and the check-in already proves they were here. */
+    var btn=$("btn-save-lambing"); btn.disabled=true; btn.textContent="Saving…";
     var now=new Date();
     try{
       var res=await apiPost({
@@ -1474,8 +1474,7 @@
         assistance:$("in-assist").value,
         followup:followPick.get(), followup_note:$("in-followup-note").value.trim(),
         notes:$("in-lamb-notes").value.trim(),
-        lambs:lambs,
-        lat:g.lat, lon:g.lon, dist:g.dist, atfarm:g.atfarm
+        lambs:lambs
       });
       showMsg(msg, "Saved — "+chosenEwe+": "+res.born_total+" lamb"+(res.born_total===1?"":"s")+
         " ("+res.born_alive+" alive"+(res.born_dead?", "+res.born_dead+" dead":"")+") in "+penPick.get()+".", "ok");
