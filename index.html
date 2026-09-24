@@ -606,6 +606,7 @@
   <div id="admin-body" hidden>
     <div class="toolbar">
       <button class="btn quiet" id="btn-refresh">Refresh</button>
+      <button class="btn quiet" id="btn-speedtest">Speed test</button>
       <button class="btn gold" id="btn-csv-checkins">Check-ins CSV</button>
       <button class="btn gold" id="btn-csv-lambs">Lambing CSV</button>
       <button class="btn gold" id="btn-csv-treatments">Treatments CSV</button>
@@ -613,6 +614,12 @@
       <button class="btn gold" id="btn-csv-moves">Movements CSV</button>
       <button class="btn quiet" id="btn-qr-toggle">QR poster</button>
       <button class="btn quiet" id="btn-back">Student view</button>
+    </div>
+
+    <div class="card" id="speed-card" hidden>
+      <h2>Connection speed test</h2>
+      <p class="hint" style="margin:0 0 10px">Times each call the app makes. "server" is how long Apps Script took; the rest is network.</p>
+      <pre id="speed-out" style="font-family:var(--mono);font-size:12.5px;white-space:pre-wrap;line-height:1.7;margin:0"></pre>
     </div>
 
     <div class="card" id="qr-card" hidden>
@@ -1004,7 +1011,8 @@
     if(!apiReady()) throw new Error("API_URL is not set");
     if(!force && Date.now()-lastFetch < 8000) return DATA;
     if(inFlight) return inFlight;                 /* don't stack duplicate calls */
-    var url=API_URL+"?action="+(scope==="records"?"records":"all")+"&t="+Date.now();
+    var url=API_URL+"?action="+(scope==="records"?"records":"all")+
+            (scope==="fresh"?"&fresh=1":"")+"&t="+Date.now();
     inFlight=(async function(){
       try{
         var r=await fetch(url);
@@ -1087,10 +1095,11 @@
       refreshThen(function(){ renderMoveList(); renderBoard(); });
     });
   }
-  /* pull fresh data, then repaint — a stale board is worse than a slow one */
+  /* Pull fresh data, then repaint — a stale board is worse than a slow one.
+     These screens never show check-ins, so they ask for "records" only. */
   function refreshThen(fn){
     if(!apiReady()) return;
-    apiAll(true).then(fn).catch(function(){});
+    apiAll(true,"records").then(fn).catch(function(){});
   }
   paintTabs();
 
@@ -1348,11 +1357,22 @@
     [{value:"no",label:"No"},{value:"yes",label:"Yes — flag it",cls:"dead"}], "no",
     function(v){ $("in-followup-note").hidden = (v!=="yes"); });
 
+  /* Just the roster — a few dozen rows — instead of the whole database,
+     which is all the ewe picker ever needed. */
+  async function apiEwes(){
+    if(!apiReady()) throw new Error("API_URL is not set");
+    var r=await fetch(API_URL+"?action=ewes&t="+Date.now());
+    var j=await r.json();
+    if(!j.ok) throw new Error(j.error||"fetch failed");
+    if(j.ewes) DATA.ewes=j.ewes;
+    return DATA.ewes;
+  }
+
   async function ensureEwes(){
     if(ewesLoaded) return;
     var hint=$("ewe-hint");
     if(!apiReady()){ hint.textContent="Setup needed: paste your Apps Script URL into API_URL."; return; }
-    try{ await apiAll(); ewesLoaded=true; }
+    try{ await apiEwes(); ewesLoaded=true; }
     catch(e){ hint.textContent="Couldn't load the ewe list — you can still type an ID below."; return; }
     hint.textContent = DATA.ewes.length
       ? DATA.ewes.length+" ewes on the roster. Not on the list? Type her ID and tap “Use this ID”."
@@ -2138,7 +2158,7 @@
     $("lambing-status").textContent="Loading…"; $("admin-lambings").innerHTML="";
     $("treat-status").textContent="Loading…"; $("admin-treatments").innerHTML="";
     if(!apiReady()){ st.textContent="Setup needed: paste your Apps Script URL into API_URL."; return; }
-    try{ await apiAll(true); }
+    try{ await apiAll(true,"fresh"); }   /* bypass the server cache */
     catch(e){ st.textContent="Couldn't reach the sheet — check the Apps Script deployment."; return; }
 
     /* check-ins by day */
@@ -2294,6 +2314,33 @@
     catch(e){ window.alert("Couldn't remove it — refresh and try again."); }
   }
   $("btn-refresh").addEventListener("click", renderAdmin);
+
+  /* Times each endpoint separately so a slow load can be pinned on the server,
+     the payload size, or the phone's connection. */
+  $("btn-speedtest").addEventListener("click", async function(){
+    var card=$("speed-card"), out=$("speed-out");
+    card.hidden=false; out.textContent="Running…";
+    var lines=[], tests=[["ewes (roster only)","ewes"],["records (no check-ins)","records"],["all (everything)","all"]];
+    for(var i=0;i<tests.length;i++){
+      var label=tests[i][0], action=tests[i][1];
+      out.textContent=lines.concat(["testing "+label+"…"]).join("\n");
+      var t0=performance.now(), txt="", ms="?", err=null;
+      try{
+        var r=await fetch(API_URL+"?action="+action+"&t="+Date.now());
+        txt=await r.text();
+        try{ ms=(JSON.parse(txt).ms)+" ms"; }catch(e){ ms="not JSON"; }
+      }catch(e){ err=e.message||String(e); }
+      var total=Math.round(performance.now()-t0);
+      lines.push(err
+        ? label+": FAILED — "+err
+        : label+": "+total+" ms total · server "+ms+" · "+Math.round(txt.length/1024)+" KB");
+      out.textContent=lines.join("\n");
+    }
+    lines.push("");
+    lines.push("If 'server' is small but total is large, the connection is the limit.");
+    lines.push("If 'server' is large, the Sheet is the limit — tell Claude these numbers.");
+    out.textContent=lines.join("\n");
+  });
 
   /* ---------- CSV exports ---------- */
   function csvCell(v){
