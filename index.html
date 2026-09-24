@@ -988,6 +988,39 @@
   function apiReady(){ return API_URL.indexOf("https://")===0 && API_URL.indexOf("PASTE_YOUR")<0; }
   var lastFetch=0, inFlight=null;
 
+  /* ---------- keep the last good copy on the phone ----------
+     The backend answers in ~120 ms but the round trip over barn signal can take
+     20 seconds or more. So every successful fetch is saved locally, the app
+     opens from that copy instantly, and the network refresh lands when it
+     lands. Losing signal entirely just means the data stops being updated. */
+  var LS_DATA="lamb_cache_v1", cacheAge=0;
+  function saveCache(){
+    try{
+      localStorage.setItem(LS_DATA, JSON.stringify({t:Date.now(), d:DATA}));
+      cacheAge=Date.now();
+    }catch(e){}   /* quota or private mode — the app still works, just not offline */
+  }
+  function loadCache(){
+    try{
+      var raw=localStorage.getItem(LS_DATA);
+      if(!raw) return false;
+      var o=JSON.parse(raw);
+      if(!o || !o.d) return false;
+      Object.keys(DATA).forEach(function(k){ if(o.d[k]) DATA[k]=o.d[k]; });
+      cacheAge=o.t||0;
+      return true;
+    }catch(e){ return false; }
+  }
+  function cacheLabel(){
+    if(!cacheAge) return "";
+    var mins=Math.round((Date.now()-cacheAge)/60000);
+    if(mins<1)  return "just now";
+    if(mins<60) return mins+" min ago";
+    var h=Math.round(mins/60);
+    return h===1 ? "1 hour ago" : h+" hours ago";
+  }
+  loadCache();
+
   /* Merge only the keys the server actually sent, so a scoped fetch that
      leaves out check-ins doesn't wipe the copy we already have. */
   function mergeData(j){
@@ -1019,7 +1052,9 @@
         var j=await r.json();
         if(!j.ok) throw new Error(j.error||"fetch failed");
         lastFetch=Date.now();
-        return mergeData(j);
+        mergeData(j);
+        saveCache();
+        return DATA;
       } finally { inFlight=null; }
     })();
     return inFlight;
@@ -1112,17 +1147,31 @@
 
   $("in-name").value = lsGet("lamb_name");
 
-  async function renderToday(){
+  function paintToday(note){
     var ul=$("today-ledger");
-    if(!apiReady()){ ul.innerHTML='<li class="empty">Setup needed: paste your Apps Script URL into API_URL near the top of the script.</li>'; return; }
-    var list;
-    try{ await apiAll(); list=DATA.entries.filter(function(e){return e.date===todayKey();}); }
-    catch(e){ ul.innerHTML='<li class="empty">Couldn\'t reach the sheet — check your connection.</li>'; return; }
-    if(!list.length){ ul.innerHTML='<li class="empty">No one has checked in yet today.</li>'; return; }
+    var list=DATA.entries.filter(function(e){return e.date===todayKey();});
+    if(!list.length){
+      ul.innerHTML='<li class="empty">'+(note||"No one has checked in yet today.")+"</li>"; return;
+    }
     ul.innerHTML=list.map(function(e){
       return '<li><span class="lt">'+esc(fmtTime(e.ts))+'</span><span>'+esc(e.name)+
              '</span><span class="ls">'+esc(shiftName(e.shift))+"</span></li>";
-    }).join("");
+    }).join("")+(note?'<li class="empty">'+note+"</li>":"");
+  }
+
+  async function renderToday(){
+    var ul=$("today-ledger");
+    if(!apiReady()){ ul.innerHTML='<li class="empty">Setup needed: paste your Apps Script URL into API_URL near the top of the script.</li>'; return; }
+    var had=DATA.entries.length>0;
+    if(had) paintToday("updating… (last synced "+cacheLabel()+")");
+    else ul.innerHTML='<li class="empty">Loading…</li>';
+    try{ await apiAll(); }
+    catch(e){
+      paintToday(had ? "Offline — showing the copy from "+cacheLabel()+"."
+                     : "Couldn't reach the sheet — check your connection.");
+      return;
+    }
+    paintToday();
   }
 
   $("btn-checkin").addEventListener("click", async function(){
@@ -1368,15 +1417,29 @@
     return DATA.ewes;
   }
 
+  function eweHint(extra){
+    $("ewe-hint").textContent = (DATA.ewes.length
+      ? DATA.ewes.length+" ewes on the roster. Not on the list? Type her ID and tap “Use this ID”."
+      : "No ewes on the roster yet — add them to the Ewes tab of the Sheet, or just type an ID.")
+      + (extra ? " "+extra : "");
+  }
+
   async function ensureEwes(){
     if(ewesLoaded) return;
-    var hint=$("ewe-hint");
-    if(!apiReady()){ hint.textContent="Setup needed: paste your Apps Script URL into API_URL."; return; }
+    if(!apiReady()){ $("ewe-hint").textContent="Setup needed: paste your Apps Script URL into API_URL."; return; }
+    /* the roster is saved on the phone, so the picker is usable immediately */
+    var had=DATA.ewes.length>0;
+    if(had){ eweHint("Updating…"); renderEweResults(); }
+    else $("ewe-hint").textContent="Loading the ewe list…";
     try{ await apiEwes(); ewesLoaded=true; }
-    catch(e){ hint.textContent="Couldn't load the ewe list — you can still type an ID below."; return; }
-    hint.textContent = DATA.ewes.length
-      ? DATA.ewes.length+" ewes on the roster. Not on the list? Type her ID and tap “Use this ID”."
-      : "No ewes on the roster yet — add them to the Ewes tab of the Sheet, or just type an ID.";
+    catch(e){
+      eweHint(had ? "Offline — list from "+cacheLabel()+"."
+                  : "Couldn't load the list — you can still type an ID below.");
+      if(!had) $("ewe-hint").textContent="Couldn't load the ewe list — you can still type an ID below.";
+      return;
+    }
+    saveCache();
+    eweHint();
     renderEweResults();
   }
   function lambedSet(){
@@ -2002,7 +2065,7 @@
     try{ await apiAll(true,"records"); }
     catch(e){
       if(!have) st.textContent="Couldn't reach the sheet — check your connection.";
-      else st.textContent=st.textContent.replace(" · updating…"," · could not refresh");
+      else st.textContent=st.textContent.replace(" · updating…"," · offline, showing "+cacheLabel());
       return;
     }
     paintReport();
