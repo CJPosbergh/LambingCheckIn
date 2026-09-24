@@ -704,6 +704,11 @@
   var API_URL    = "https://script.google.com/macros/s/AKfycbyHrWY4qAnYyOomdjZrtPJETvkuZ83787JmHT0OHPEj1cuxLwgg7dK-BKUoqHlobFrXRA/exec";
   var ADMIN_PASS = "MSUSheep";   /* must match ADMIN_PASS in the Apps Script */
 
+  /* Send no Google cookies with these calls. The endpoint is public, so they are
+     not needed — and on a browser signed into several Google accounts they drag
+     the request through an account-chooser redirect that cost 17-39 seconds. */
+  var OPTS = {credentials:"omit", cache:"no-store"};
+
   /* --- farm location check --- */
   var FARM_LAT = 45.6662;    /* MAES Ft. Ellis barn latitude  */
   var FARM_LON = -110.9734;  /* MAES Ft. Ellis barn longitude */
@@ -1048,7 +1053,7 @@
             (scope==="fresh"?"&fresh=1":"")+"&t="+Date.now();
     inFlight=(async function(){
       try{
-        var r=await fetch(url);
+        var r=await fetch(url,OPTS);
         var j=await r.json();
         if(!j.ok) throw new Error(j.error||"fetch failed");
         lastFetch=Date.now();
@@ -1060,7 +1065,8 @@
     return inFlight;
   }
   async function apiPost(payload){
-    var r=await fetch(API_URL,{method:"POST",body:JSON.stringify(payload)});
+    var r=await fetch(API_URL,{method:"POST",body:JSON.stringify(payload),
+                               credentials:"omit",cache:"no-store"});
     var j=await r.json();
     if(!j.ok) throw new Error(j.error||"request failed");
     return j;
@@ -1410,7 +1416,7 @@
      which is all the ewe picker ever needed. */
   async function apiEwes(){
     if(!apiReady()) throw new Error("API_URL is not set");
-    var r=await fetch(API_URL+"?action=ewes&t="+Date.now());
+    var r=await fetch(API_URL+"?action=ewes&t="+Date.now(),OPTS);
     var j=await r.json();
     if(!j.ok) throw new Error(j.error||"fetch failed");
     if(j.ewes) DATA.ewes=j.ewes;
@@ -2389,7 +2395,7 @@
       out.textContent=lines.concat(["testing "+label+"…"]).join("\n");
       var t0=performance.now(), txt="", ms="?", err=null;
       try{
-        var r=await fetch(API_URL+"?action="+action+"&t="+Date.now());
+        var r=await fetch(API_URL+"?action="+action+"&t="+Date.now(),OPTS);
         txt=await r.text();
         try{ ms=(JSON.parse(txt).ms)+" ms"; }catch(e){ ms="not JSON"; }
       }catch(e){ err=e.message||String(e); }
