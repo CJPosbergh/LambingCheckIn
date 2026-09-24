@@ -788,6 +788,21 @@
       endLabel:"Check in",      /* last button's text… */
       endTab:"checkin",         /* …and the tab it opens */
       steps:[
+        /* Only appears when something is actually flagged. The list is built
+           from the live records, so it names the animals to look at. */
+        { when: function(){ return openFollowups().length>0; },
+          title: function(){
+            var n=openFollowups().length;
+            return n===1 ? "One animal to check on" : n+" animals to check on";
+          },
+          body:"Someone on an earlier shift flagged these. Look at them first, then clear each one on the Report tab once you have.",
+          points: function(){
+            return openFollowups().map(function(f){
+              return f.title+": "+f.note+" ("+f.when+(f.by?", "+f.by:"")+")";
+            });
+          },
+          tip:"If one still is not right, leave it flagged and tell the shift lead." },
+
         { title:"Feed & Water",
           body:"If no ewes are actively lambing and there are no new lambs, please ensure all ewes have feed and water.",
           points:["Do all the ewes in jugs, mixing pens, and gen pop have clean water and adequate feed?",
@@ -1378,6 +1393,44 @@
     });
   }
 
+  /* Everything still flagged for follow-up, from both record types.
+     The Report list and the checklist step both read this. */
+  function openFollowups(){
+    var out=[];
+    DATA.lambings.forEach(function(l){
+      if(String(l.followup).toLowerCase()!=="yes") return;
+      out.push({kind:"lambing", uid:l.lambing_id,
+                title:"Ewe "+l.ewe_id+(l.pen?" · "+l.pen:""),
+                note:l.followup_note||l.notes||"Flagged at the lambing record.",
+                when:l.date+" "+l.time, by:l.recorded_by||"", ts:l.ts||0});
+    });
+    DATA.treatments.forEach(function(t){
+      if(String(t.followup).toLowerCase()!=="yes") return;
+      out.push({kind:"treatment", uid:t.treatment_id,
+                title:(t.animal_type||"animal")+" "+t.animal_id+(t.treatment?" · "+t.treatment:""),
+                note:t.notes||t.reason||"Flagged at the treatment record.",
+                when:t.date+" "+t.time, by:t.recorded_by||"", ts:t.ts||0});
+    });
+    return out.sort(function(a,b){ return a.ts-b.ts; });   /* oldest first */
+  }
+
+  async function resolveFollowup(kind, uid, note){
+    var who=lsGet("lamb_name");
+    if(!who){
+      who=(window.prompt("Your name, so the record shows who cleared it:")||"").trim();
+      if(who.length<2) return false;
+      lsSet("lamb_name", who);
+    }
+    await apiPost({action:"resolve", kind:kind, uid:uid, who:who,
+                   note:note||"", at:new Date().toISOString()});
+    /* reflect it locally at once so the list updates without a round trip */
+    var arr = kind==="lambing" ? DATA.lambings : DATA.treatments;
+    var key = kind==="lambing" ? "lambing_id" : "treatment_id";
+    arr.forEach(function(r){ if(String(r[key])===String(uid)){ r.followup="no"; r.resolved_by=who; } });
+    saveCache();
+    return true;
+  }
+
   function jugsInUse(){
     return JUGS.filter(function(j){ return occupantsOf(j).length; }).length;
   }
@@ -1952,8 +2005,20 @@
     for(var i=0;i<PATHS.length;i++) if(PATHS[i].id===id) return PATHS[i];
     return null;
   }
+  /* Steps whose `when` returns false are skipped. The list is snapshotted when
+     the path starts so it cannot shift under the student mid-walk. */
+  var curSteps=[];
+  function visibleSteps(pth){
+    return (pth.steps||[]).filter(function(st){
+      try{ return typeof st.when==="function" ? !!st.when() : true; }
+      catch(e){ return true; }
+    });
+  }
+  function val(v){ return typeof v==="function" ? v() : v; }
+
   function startPath(id){
     curPath=id; stepIx=0;
+    curSteps=visibleSteps(pathById(id)||{steps:[]});
     $("path-card").hidden=true;
     $("step-wrap").hidden=false;
     paintStep();
@@ -1968,7 +2033,9 @@
 
   function paintStep(){
     var pth=pathById(curPath); if(!pth) return backToFork();
-    var steps=pth.steps, s=steps[stepIx];
+    if(!curSteps.length) curSteps=visibleSteps(pth);
+    var steps=curSteps, s=steps[stepIx];
+    if(!s) return backToFork();
 
     $("pathcrumb").innerHTML='<span>'+esc(pth.label)+"</span>";
     var sw=document.createElement("button");
@@ -1984,7 +2051,7 @@
     });
 
     $("stepnum").textContent="Step "+(stepIx+1)+" of "+steps.length;
-    $("steptitle").textContent=s.title;
+    $("steptitle").textContent=val(s.title);
 
     /* Photos are optional. Stay hidden until the file actually loads, so a
        step with no picture yet shows nothing at all rather than a blank box. */
@@ -2022,10 +2089,11 @@
       }
       return "<li>"+label(p)+"</li>";
     }
-    $("stepbody").innerHTML=(s.body ? "<p>"+esc(s.body)+"</p>" : "")+
-      (s.points && s.points.length ? "<ul"+(s.body?"":' class="lead"')+">"+
-        s.points.map(bullet).join("")+"</ul>" : "");
-    if(s.tip){ $("steptip").textContent=s.tip; $("steptip").hidden=false; }
+    var sBody=val(s.body), sPoints=val(s.points)||[], sTip=val(s.tip);
+    $("stepbody").innerHTML=(sBody ? "<p>"+esc(sBody)+"</p>" : "")+
+      (sPoints.length ? "<ul"+(sBody?"":' class="lead"')+">"+
+        sPoints.map(bullet).join("")+"</ul>" : "");
+    if(sTip){ $("steptip").textContent=sTip; $("steptip").hidden=false; }
     else $("steptip").hidden=true;
 
     $("btn-step-back").disabled = stepIx===0;
@@ -2037,7 +2105,7 @@
 
   $("btn-step-next").addEventListener("click", function(){
     var pth=pathById(curPath); if(!pth) return;
-    if(stepIx===pth.steps.length-1){
+    if(stepIx===curSteps.length-1){
       /* a path can hand off to another checklist, or to a tab */
       if(pth.endPath && pathById(pth.endPath)){ startPath(pth.endPath); return; }
       var dest=pth.endTab;
@@ -2106,9 +2174,8 @@
     var last24=L.filter(function(l){ return l.ts>cutoff; });
     var lambs24=last24.reduce(function(a,l){ return a+(Number(l.born_total)||0); },0);
 
-    var fl=L.filter(function(l){ return String(l.followup).toLowerCase()==="yes"; });
-    var ft=T.filter(function(t){ return String(t.followup).toLowerCase()==="yes"; });
-    var openCount=fl.length+ft.length;
+    var openList=openFollowups();
+    var openCount=openList.length;
 
     st.textContent="Updated "+fmtTime(Date.now())+" · "+L.length+" lambing record"+(L.length===1?"":"s")+
                    (eweDeaths.length ? " · "+eweDeaths.length+" ewe"+(eweDeaths.length===1?"":"s")+" lost" : "")+".";
@@ -2164,20 +2231,33 @@
         }).join("")+"</tbody>";
     }
 
-    /* follow-ups */
+    /* follow-ups, each with a way to clear it */
     if(openCount){
       $("followup-card").hidden=false;
-      $("followup-list").innerHTML =
-        fl.map(function(l){
-          return '<div class="followup"><b>Ewe '+esc(l.ewe_id)+" · "+esc(l.pen||"")+"</b>"+
-                 esc(l.followup_note || l.notes || "Flagged at the lambing record.")+
-                 '<div class="hint">'+esc(l.date)+" "+esc(l.time)+" · "+esc(l.recorded_by||"")+"</div></div>";
-        }).join("")+
-        ft.map(function(t){
-          return '<div class="followup"><b>'+esc(t.animal_type)+" "+esc(t.animal_id)+" · "+esc(t.treatment)+"</b>"+
-                 esc(t.notes || t.reason || "Flagged at the treatment record.")+
-                 '<div class="hint">'+esc(t.date)+" "+esc(t.time)+" · "+esc(t.recorded_by||"")+"</div></div>";
-        }).join("");
+      $("followup-list").innerHTML = openList.map(function(f){
+        return '<div class="followup" data-fu="'+esc(f.kind+"|"+f.uid)+'">'+
+               "<b>"+esc(f.title)+"</b>"+esc(f.note)+
+               '<div class="hint">'+esc(f.when)+(f.by?" · "+esc(f.by):"")+"</div>"+
+               '<button class="btn quiet inline resolve-btn" style="margin-top:10px">Mark resolved</button>'+
+               "</div>";
+      }).join("");
+      $("followup-list").querySelectorAll(".resolve-btn").forEach(function(b){
+        b.addEventListener("click", async function(){
+          var card=b.closest(".followup");
+          var parts=card.getAttribute("data-fu").split("|");
+          var note=window.prompt("What did you find? (optional)","");
+          if(note===null) return;                       /* cancelled */
+          b.disabled=true; b.textContent="Clearing…";
+          try{
+            var ok=await resolveFollowup(parts[0], parts.slice(1).join("|"), note.trim());
+            if(!ok){ b.disabled=false; b.textContent="Mark resolved"; return; }
+            paintReport();
+          }catch(e){
+            b.disabled=false; b.textContent="Mark resolved";
+            window.alert("Couldn't clear it — check your connection and try again.");
+          }
+        });
+      });
     }
 
     /* recent lambings */
